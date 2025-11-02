@@ -1,11 +1,12 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, View } from "react-native";
+import { ProtectedRoute } from "../../components/ProtectedRoute";
 import { UMKMProfileForm } from "../../components/UMKMProfileForm";
 import { ProfileStorageService } from "../../services";
 import { UMKMFormData } from "../../types";
 
-export default function CreateProfileScreen() {
+function CreateProfileScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (formData: UMKMFormData) => {
@@ -32,5 +33,13 @@ export default function CreateProfileScreen() {
     <View className="flex-1">
       <UMKMProfileForm onSubmit={handleSubmit} loading={loading} />
     </View>
+  );
+}
+
+export default function ProtectedCreateProfileScreen() {
+  return (
+    <ProtectedRoute>
+      <CreateProfileScreen />
+    </ProtectedRoute>
   );
 }

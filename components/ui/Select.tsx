@@ -1,12 +1,11 @@
 import React from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { JenisUsahaOptions } from "../../types";
 
 interface SelectProps {
   label?: string;
   value: string;
   onValueChange: (value: string) => void;
-  options: JenisUsahaOptions[];
+  options: string[];
   placeholder?: string;
   error?: string;
   required?: boolean;

@@ -13,10 +13,11 @@ import {
   View,
 } from "react-native";
 import { ProfileCard } from "../../../components/ProfileCard";
+import { ProtectedRoute } from "../../../components/ProtectedRoute";
 import { ProfileStorageService } from "../../../services";
 import { UMKMProfile } from "../../../types";
 
-export default function ProfileListScreen() {
+function ProfileListScreen() {
   const [profiles, setProfiles] = useState<UMKMProfile[]>([]);
   const [filteredProfiles, setFilteredProfiles] = useState<UMKMProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -219,5 +220,13 @@ export default function ProfileListScreen() {
         showsVerticalScrollIndicator={false}
       />
     </View>
+  );
+}
+
+export default function ProtectedProfileListScreen() {
+  return (
+    <ProtectedRoute>
+      <ProfileListScreen />
+    </ProtectedRoute>
   );
 }

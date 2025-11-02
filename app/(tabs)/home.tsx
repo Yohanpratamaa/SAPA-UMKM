@@ -1,9 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useAuth } from "../../contexts";
 
 export default function HomeScreen() {
+  const { user, logout } = useAuth();
+
   const features = [
     {
       id: 1,
@@ -49,6 +52,20 @@ export default function HomeScreen() {
     }
   };
 
+  const handleLogout = () => {
+    Alert.alert("Logout", "Apakah Anda yakin ingin keluar dari aplikasi?", [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          router.replace("/auth/login");
+        },
+      },
+    ]);
+  };
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       {/* Header */}
@@ -61,15 +78,59 @@ export default function HomeScreen() {
             <Text className="text-blue-100 text-base">
               Sistem Aplikasi Pendampingan Adaptasi UMKM
             </Text>
+            {user && (
+              <Text className="text-blue-100 text-sm mt-2">
+                Selamat datang, {user.fullName}
+              </Text>
+            )}
           </View>
-          <View className="bg-white bg-opacity-20 p-3 rounded-full">
-            <Ionicons name="business" size={32} color="white" />
+          <View className="items-center">
+            <View className="bg-white bg-opacity-20 p-3 rounded-full mb-2">
+              <Ionicons name="business" size={32} color="white" />
+            </View>
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="bg-white bg-opacity-20 px-3 py-1 rounded-full"
+            >
+              <Text className="text-white text-xs">Logout</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
 
+      {/* User Info Card */}
+      {user && (
+        <View className="mx-6 -mt-6 bg-white rounded-xl p-4 shadow-sm">
+          <Text className="text-gray-800 font-semibold mb-3">
+            Informasi Akun
+          </Text>
+          <View className="space-y-2">
+            <View className="flex-row items-center">
+              <Ionicons name="person-outline" size={16} color="#6B7280" />
+              <Text className="text-gray-600 ml-2 text-sm">
+                {user.fullName}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Ionicons name="mail-outline" size={16} color="#6B7280" />
+              <Text className="text-gray-600 ml-2 text-sm">{user.email}</Text>
+            </View>
+            <View className="flex-row items-center">
+              <Ionicons name="shield-outline" size={16} color="#6B7280" />
+              <Text className="text-gray-600 ml-2 text-sm capitalize">
+                {user.role}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Quick Stats */}
-      <View className="mx-6 -mt-6 bg-white rounded-xl p-4 shadow-sm">
+      <View
+        className={`mx-6 ${
+          user ? "mt-6" : "-mt-6"
+        } bg-white rounded-xl p-4 shadow-sm`}
+      >
         <Text className="text-gray-800 font-semibold mb-3">
           Ringkasan Aktivitas
         </Text>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, ScrollView, Text, View } from "react-native";
-import { JenisUsahaOptions, UMKMFormData, ValidationErrors } from "../types";
+import { UMKMFormData, ValidationErrors } from "../types";
 import { Button, ImageUpload, Input, Select } from "./ui";
 
 interface UMKMProfileFormProps {
@@ -9,7 +9,7 @@ interface UMKMProfileFormProps {
   loading?: boolean;
 }
 
-const jenisUsahaOptions: JenisUsahaOptions[] = [
+const jenisUsahaOptions: string[] = [
   "Kuliner",
   "Fashion",
   "Kerajinan",
