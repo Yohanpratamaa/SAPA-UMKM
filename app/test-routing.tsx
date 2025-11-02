@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { router } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function TestRoutingScreen() {
   const testLoginRoute = () => {
@@ -21,7 +21,7 @@ export default function TestRoutingScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Test Routing</Text>
-      
+
       <TouchableOpacity style={styles.button} onPress={testLoginRoute}>
         <Text style={styles.buttonText}>Test Login Route</Text>
       </TouchableOpacity>

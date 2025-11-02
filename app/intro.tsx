@@ -1,6 +1,6 @@
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { router } from "expo-router";
 import { GettingStartedScreen } from "../components/GettingStartedScreenSimple";
 import { OnboardingScreen } from "../components/OnboardingScreenSimple";
 import { SplashScreen } from "../components/SplashScreen";
