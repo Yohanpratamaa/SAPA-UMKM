@@ -1,8 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { LoginFormData, LoginValidationErrors } from "../../types";
-import { Button, Input } from "../ui";
+
+const { width, height } = Dimensions.get("window");
 
 interface LoginFormProps {
   onSubmit: (data: LoginFormData) => void;
@@ -25,6 +35,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const [errors, setErrors] = useState<LoginValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: LoginValidationErrors = {};
@@ -53,7 +64,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const updateField = (field: keyof LoginFormData, value: string | boolean) => {
     setFormData((prev: LoginFormData) => ({ ...prev, [field]: value }));
-    // Clear error ketika user mulai mengetik
     if (errors[field as keyof LoginValidationErrors]) {
       setErrors((prev: LoginValidationErrors) => ({
         ...prev,
@@ -63,116 +73,426 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <View className="w-full">
-      {/* Header */}
-      <View className="items-center mb-8">
-        <View className="bg-blue-100 p-4 rounded-full mb-4">
-          <Ionicons name="business" size={40} color="#3B82F6" />
-        </View>
-        <Text className="text-3xl font-bold text-gray-900 mb-2">
-          Selamat Datang
-        </Text>
-        <Text className="text-gray-600 text-center">
-          Masuk ke akun SAPA UMKM Anda
-        </Text>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={["#667eea", "#764ba2"]}
+        style={styles.backgroundGradient}
+      />
+
+      {/* Decorative background elements */}
+      <View style={styles.decorativeContainer}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      {/* Form */}
-      <View className="space-y-4">
-        <Input
-          label="Email atau Username"
-          value={formData.emailOrUsername}
-          onChangeText={(value: string) =>
-            updateField("emailOrUsername", value)
-          }
-          placeholder="Masukkan email atau username"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          error={errors.emailOrUsername}
-          required
-        />
-
-        <View className="relative">
-          <Input
-            label="Password"
-            value={formData.password}
-            onChangeText={(value: string) => updateField("password", value)}
-            placeholder="Masukkan password"
-            secureTextEntry={!showPassword}
-            error={errors.password}
-            required
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-10"
-            style={{ marginTop: 2 }}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color="#6B7280"
-            />
-          </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.logoContainer}>
+            <LinearGradient
+              colors={["#4F46E5", "#7C3AED"]}
+              style={styles.logoGradient}
+            >
+              <Ionicons name="business" size={32} color="white" />
+            </LinearGradient>
+          </View>
+          <Text style={styles.welcomeTitle}>Selamat Datang Kembali</Text>
+          <Text style={styles.welcomeSubtitle}>
+            Masuk ke akun SAPA UMKM Anda untuk melanjutkan
+          </Text>
         </View>
 
-        {/* Remember Me & Forgot Password */}
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity
-            onPress={() => updateField("rememberMe", !formData.rememberMe)}
-            className="flex-row items-center"
-          >
+        {/* Form */}
+        <View style={styles.formContainer}>
+          {/* Email/Username Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Email atau Username</Text>
             <View
-              className={`w-5 h-5 border-2 rounded mr-2 items-center justify-center ${
-                formData.rememberMe
-                  ? "bg-blue-600 border-blue-600"
-                  : "border-gray-300"
-              }`}
+              style={[
+                styles.inputWrapper,
+                focusedField === "emailOrUsername" &&
+                  styles.inputWrapperFocused,
+                errors.emailOrUsername && styles.inputWrapperError,
+              ]}
             >
-              {formData.rememberMe && (
-                <Ionicons name="checkmark" size={12} color="white" />
-              )}
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={
+                  focusedField === "emailOrUsername" ? "#4F46E5" : "#9CA3AF"
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.textInput}
+                value={formData.emailOrUsername}
+                onChangeText={(value) => updateField("emailOrUsername", value)}
+                placeholder="Masukkan email atau username"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                onFocus={() => setFocusedField("emailOrUsername")}
+                onBlur={() => setFocusedField(null)}
+              />
             </View>
-            <Text className="text-gray-700 text-sm">Ingat saya</Text>
+            {errors.emailOrUsername && (
+              <Text style={styles.errorText}>{errors.emailOrUsername}</Text>
+            )}
+          </View>
+
+          {/* Password Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                focusedField === "password" && styles.inputWrapperFocused,
+                errors.password && styles.inputWrapperError,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={focusedField === "password" ? "#4F46E5" : "#9CA3AF"}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[styles.textInput, { flex: 1 }]}
+                value={formData.password}
+                onChangeText={(value) => updateField("password", value)}
+                placeholder="Masukkan password"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showPassword}
+                onFocus={() => setFocusedField("password")}
+                onBlur={() => setFocusedField(null)}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#9CA3AF"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+          </View>
+
+          {/* Remember Me & Forgot Password */}
+          <View style={styles.optionsContainer}>
+            <TouchableOpacity
+              onPress={() => updateField("rememberMe", !formData.rememberMe)}
+              style={styles.rememberMeContainer}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.rememberMe && styles.checkboxChecked,
+                ]}
+              >
+                {formData.rememberMe && (
+                  <Ionicons name="checkmark" size={14} color="white" />
+                )}
+              </View>
+              <Text style={styles.rememberMeText}>Ingat saya</Text>
+            </TouchableOpacity>
+
+            {onForgotPassword && (
+              <TouchableOpacity onPress={onForgotPassword}>
+                <Text style={styles.forgotPasswordText}>Lupa password?</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Error Message */}
+          {errors.general && (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle-outline" size={16} color="#EF4444" />
+              <Text style={styles.generalErrorText}>{errors.general}</Text>
+            </View>
+          )}
+
+          {/* Login Button */}
+          <TouchableOpacity
+            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <LinearGradient
+              colors={loading ? ["#9CA3AF", "#6B7280"] : ["#4F46E5", "#7C3AED"]}
+              style={styles.loginButtonGradient}
+            >
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.loginButtonText}>Memuat...</Text>
+                </View>
+              ) : (
+                <>
+                  <Text style={styles.loginButtonText}>Masuk</Text>
+                  <Ionicons name="arrow-forward" size={20} color="white" />
+                </>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
 
-          {onForgotPassword && (
-            <TouchableOpacity onPress={onForgotPassword}>
-              <Text className="text-blue-600 text-sm font-medium">
-                Lupa password?
-              </Text>
-            </TouchableOpacity>
+          {/* Sign Up Link */}
+          {onSignUp && (
+            <View style={styles.signUpContainer}>
+              <Text style={styles.signUpText}>Belum punya akun? </Text>
+              <TouchableOpacity onPress={onSignUp}>
+                <Text style={styles.signUpLink}>Daftar sekarang</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
-
-        {/* Error Message */}
-        {errors.general && (
-          <View className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <Text className="text-red-600 text-sm text-center">
-              {errors.general}
-            </Text>
-          </View>
-        )}
-
-        {/* Login Button */}
-        <Button
-          title="Masuk"
-          onPress={handleSubmit}
-          loading={loading}
-          className="mt-6"
-        />
-
-        {/* Sign Up Link */}
-        {onSignUp && (
-          <View className="flex-row items-center justify-center mt-6">
-            <Text className="text-gray-600">Belum punya akun? </Text>
-            <TouchableOpacity onPress={onSignUp}>
-              <Text className="text-blue-600 font-semibold">
-                Daftar sekarang
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  backgroundGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: width,
+    height: height,
+  },
+  decorativeContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: width,
+    height: height,
+  },
+  circle: {
+    position: "absolute",
+    borderRadius: 1000,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  circle1: {
+    width: 200,
+    height: 200,
+    top: -100,
+    right: -50,
+  },
+  circle2: {
+    width: 150,
+    height: 150,
+    bottom: -75,
+    left: -30,
+  },
+  circle3: {
+    width: 100,
+    height: 100,
+    top: height * 0.3,
+    right: 30,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 40,
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  logoContainer: {
+    marginBottom: 24,
+  },
+  logoGradient: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  formContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  inputWrapperFocused: {
+    borderColor: "#4F46E5",
+    backgroundColor: "#FFF",
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  inputWrapperError: {
+    borderColor: "#EF4444",
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#111827",
+    paddingVertical: 4,
+  },
+  eyeIcon: {
+    padding: 4,
+  },
+  errorText: {
+    fontSize: 12,
+    color: "#EF4444",
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  optionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  rememberMeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    borderRadius: 4,
+    marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: "#4F46E5",
+    borderColor: "#4F46E5",
+  },
+  rememberMeText: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#4F46E5",
+    fontWeight: "600",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+  },
+  generalErrorText: {
+    fontSize: 14,
+    color: "#EF4444",
+    marginLeft: 8,
+    flex: 1,
+  },
+  loginButton: {
+    borderRadius: 12,
+    marginBottom: 24,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  loginButtonDisabled: {
+    shadowOpacity: 0.1,
+  },
+  loginButtonGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "white",
+    marginRight: 8,
+  },
+  signUpContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  signUpText: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  signUpLink: {
+    fontSize: 14,
+    color: "#4F46E5",
+    fontWeight: "600",
+  },
+});

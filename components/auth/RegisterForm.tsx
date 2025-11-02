@@ -1,8 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { RegisterFormData, RegisterValidationErrors, User } from "../../types";
-import { Button, Input, Select } from "../ui";
+
+const { width, height } = Dimensions.get("window");
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;
@@ -31,18 +42,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [errors, setErrors] = useState<RegisterValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: RegisterValidationErrors = {};
 
-    // Validasi email
     if (!formData.email.trim()) {
       newErrors.email = "Email harus diisi";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Format email tidak valid";
     }
 
-    // Validasi username
     if (!formData.username.trim()) {
       newErrors.username = "Username harus diisi";
     } else if (formData.username.length < 3) {
@@ -52,12 +62,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         "Username hanya boleh mengandung huruf, angka, dan underscore";
     }
 
-    // Validasi nama lengkap
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Nama lengkap harus diisi";
     }
 
-    // Validasi nomor telepon
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Nomor telepon harus diisi";
     } else if (
@@ -66,21 +74,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       newErrors.phoneNumber = "Format nomor telepon tidak valid";
     }
 
-    // Validasi password
     if (!formData.password) {
       newErrors.password = "Password harus diisi";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password minimal 6 karakter";
     }
 
-    // Validasi konfirmasi password
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Konfirmasi password harus diisi";
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Konfirmasi password tidak sama";
     }
 
-    // Validasi persetujuan
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = "Anda harus menyetujui syarat dan ketentuan";
     }
@@ -102,7 +107,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     value: string | boolean
   ) => {
     setFormData((prev: RegisterFormData) => ({ ...prev, [field]: value }));
-    // Clear error ketika user mulai mengetik
     if (errors[field as keyof RegisterValidationErrors]) {
       setErrors((prev: RegisterValidationErrors) => ({
         ...prev,
@@ -122,207 +126,618 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   };
 
+  const CustomInput = ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    keyboardType = "default",
+    autoCapitalize = "sentences",
+    secureTextEntry = false,
+    error,
+    icon,
+    showEyeIcon = false,
+    onEyePress,
+  }: any) => (
+    <View style={styles.inputContainer}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View
+        style={[
+          styles.inputWrapper,
+          focusedField === label && styles.inputWrapperFocused,
+          error && styles.inputWrapperError,
+        ]}
+      >
+        <Ionicons
+          name={icon}
+          size={20}
+          color={focusedField === label ? "#4F46E5" : "#9CA3AF"}
+          style={styles.inputIcon}
+        />
+        <TextInput
+          style={[styles.textInput, showEyeIcon && { flex: 1 }]}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#9CA3AF"
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          secureTextEntry={secureTextEntry}
+          onFocus={() => setFocusedField(label)}
+          onBlur={() => setFocusedField(null)}
+        />
+        {showEyeIcon && (
+          <TouchableOpacity onPress={onEyePress} style={styles.eyeIcon}>
+            <Ionicons
+              name={secureTextEntry ? "eye-outline" : "eye-off-outline"}
+              size={20}
+              color="#9CA3AF"
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+
   return (
-    <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-      <View className="w-full">
-        {/* Header */}
-        <View className="items-center mb-8">
-          <View className="bg-blue-100 p-4 rounded-full mb-4">
-            <Ionicons name="person-add" size={40} color="#3B82F6" />
-          </View>
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
-            Daftar Akun
-          </Text>
-          <Text className="text-gray-600 text-center">
-            Buat akun SAPA UMKM untuk memulai
-          </Text>
-        </View>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={["#667eea", "#764ba2"]}
+        style={styles.backgroundGradient}
+      />
 
-        {/* Form */}
-        <View className="space-y-4">
-          {/* Informasi Akun */}
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
-            Informasi Akun
-          </Text>
+      <View style={styles.decorativeContainer}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
+      </View>
 
-          <Input
-            label="Email"
-            value={formData.email}
-            onChangeText={(value: string) => updateField("email", value)}
-            placeholder="contoh@email.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-            required
-          />
-
-          <Input
-            label="Username"
-            value={formData.username}
-            onChangeText={(value: string) => updateField("username", value)}
-            placeholder="username_anda"
-            autoCapitalize="none"
-            error={errors.username}
-            required
-          />
-
-          <View className="relative">
-            <Input
-              label="Password"
-              value={formData.password}
-              onChangeText={(value: string) => updateField("password", value)}
-              placeholder="Minimal 6 karakter"
-              secureTextEntry={!showPassword}
-              error={errors.password}
-              required
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-10"
-              style={{ marginTop: 2 }}
-            >
-              <Ionicons
-                name={showPassword ? "eye-off-outline" : "eye-outline"}
-                size={20}
-                color="#6B7280"
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View className="relative">
-            <Input
-              label="Konfirmasi Password"
-              value={formData.confirmPassword}
-              onChangeText={(value: string) =>
-                updateField("confirmPassword", value)
-              }
-              placeholder="Ulangi password"
-              secureTextEntry={!showConfirmPassword}
-              error={errors.confirmPassword}
-              required
-            />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-10"
-              style={{ marginTop: 2 }}
-            >
-              <Ionicons
-                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-                size={20}
-                color="#6B7280"
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Informasi Personal */}
-          <Text className="text-lg font-semibold text-gray-800 mb-2 mt-6">
-            Informasi Personal
-          </Text>
-
-          <Input
-            label="Nama Lengkap"
-            value={formData.fullName}
-            onChangeText={(value: string) => updateField("fullName", value)}
-            placeholder="Nama lengkap Anda"
-            error={errors.fullName}
-            required
-          />
-
-          <Input
-            label="Nomor Telepon"
-            value={formData.phoneNumber}
-            onChangeText={(value: string) => updateField("phoneNumber", value)}
-            placeholder="+62 812 3456 7890"
-            keyboardType="phone-pad"
-            error={errors.phoneNumber}
-            required
-          />
-
-          <Select
-            label="Role"
-            value={getRoleDisplayName(formData.role)}
-            onValueChange={(value: string) => {
-              const role = roleOptions.find(
-                (r) => getRoleDisplayName(r) === value
-              );
-              if (role) updateField("role", role);
-            }}
-            options={roleOptions.map(getRoleDisplayName)}
-            placeholder="Pilih role Anda"
-            error={errors.role}
-            required
-          />
-
-          {/* Terms & Conditions */}
-          <View className="mt-6">
-            <TouchableOpacity
-              onPress={() =>
-                updateField("agreeToTerms", !formData.agreeToTerms)
-              }
-              className="flex-row items-start"
-            >
-              <View
-                className={`w-5 h-5 border-2 rounded mr-3 mt-1 items-center justify-center ${
-                  formData.agreeToTerms
-                    ? "bg-blue-600 border-blue-600"
-                    : "border-gray-300"
-                }`}
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.contentContainer}>
+          {/* Header */}
+          <View style={styles.headerContainer}>
+            <View style={styles.logoContainer}>
+              <LinearGradient
+                colors={["#4F46E5", "#7C3AED"]}
+                style={styles.logoGradient}
               >
-                {formData.agreeToTerms && (
-                  <Ionicons name="checkmark" size={12} color="white" />
+                <Ionicons name="person-add" size={32} color="white" />
+              </LinearGradient>
+            </View>
+            <Text style={styles.welcomeTitle}>Bergabung dengan SAPA UMKM</Text>
+            <Text style={styles.welcomeSubtitle}>
+              Daftarkan akun Anda untuk memulai perjalanan digital
+            </Text>
+          </View>
+
+          {/* Form */}
+          <View style={styles.formContainer}>
+            {/* Section: Informasi Akun */}
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Informasi Akun</Text>
+
+              <CustomInput
+                label="Email"
+                value={formData.email}
+                onChangeText={(value: string) => updateField("email", value)}
+                placeholder="contoh@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email}
+                icon="mail-outline"
+              />
+
+              <CustomInput
+                label="Username"
+                value={formData.username}
+                onChangeText={(value: string) => updateField("username", value)}
+                placeholder="username_anda"
+                autoCapitalize="none"
+                error={errors.username}
+                icon="person-outline"
+              />
+
+              <CustomInput
+                label="Password"
+                value={formData.password}
+                onChangeText={(value: string) => updateField("password", value)}
+                placeholder="Minimal 6 karakter"
+                secureTextEntry={!showPassword}
+                error={errors.password}
+                icon="lock-closed-outline"
+                showEyeIcon={true}
+                onEyePress={() => setShowPassword(!showPassword)}
+              />
+
+              <CustomInput
+                label="Konfirmasi Password"
+                value={formData.confirmPassword}
+                onChangeText={(value: string) =>
+                  updateField("confirmPassword", value)
+                }
+                placeholder="Ulangi password"
+                secureTextEntry={!showConfirmPassword}
+                error={errors.confirmPassword}
+                icon="lock-closed-outline"
+                showEyeIcon={true}
+                onEyePress={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
+            </View>
+
+            {/* Section: Informasi Personal */}
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Informasi Personal</Text>
+
+              <CustomInput
+                label="Nama Lengkap"
+                value={formData.fullName}
+                onChangeText={(value: string) => updateField("fullName", value)}
+                placeholder="Nama lengkap Anda"
+                error={errors.fullName}
+                icon="person-circle-outline"
+              />
+
+              <CustomInput
+                label="Nomor Telepon"
+                value={formData.phoneNumber}
+                onChangeText={(value: string) =>
+                  updateField("phoneNumber", value)
+                }
+                placeholder="+62 812 3456 7890"
+                keyboardType="phone-pad"
+                error={errors.phoneNumber}
+                icon="call-outline"
+              />
+
+              {/* Role Selection */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Role</Text>
+                <View style={styles.roleContainer}>
+                  {roleOptions.map((role) => (
+                    <TouchableOpacity
+                      key={role}
+                      style={[
+                        styles.roleOption,
+                        formData.role === role && styles.roleOptionSelected,
+                      ]}
+                      onPress={() => updateField("role", role)}
+                    >
+                      <View
+                        style={[
+                          styles.roleRadio,
+                          formData.role === role && styles.roleRadioSelected,
+                        ]}
+                      >
+                        {formData.role === role && (
+                          <View style={styles.roleRadioDot} />
+                        )}
+                      </View>
+                      <View style={styles.roleContent}>
+                        <Text
+                          style={[
+                            styles.roleTitle,
+                            formData.role === role && styles.roleSelectedText,
+                          ]}
+                        >
+                          {getRoleDisplayName(role)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.roleDescription,
+                            formData.role === role && styles.roleSelectedText,
+                          ]}
+                        >
+                          {role === "umkm"
+                            ? "Untuk pemilik usaha UMKM"
+                            : "Untuk pendamping/konsultan UMKM"}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {errors.role && (
+                  <Text style={styles.errorText}>{errors.role}</Text>
                 )}
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-700 text-sm leading-5">
-                  Saya menyetujui{" "}
-                  <Text className="text-blue-600 underline">
-                    Syarat dan Ketentuan
-                  </Text>{" "}
-                  serta{" "}
-                  <Text className="text-blue-600 underline">
-                    Kebijakan Privasi
-                  </Text>{" "}
-                  SAPA UMKM
-                </Text>
+            </View>
+
+            {/* Terms & Conditions */}
+            <View style={styles.termsContainer}>
+              <TouchableOpacity
+                onPress={() =>
+                  updateField("agreeToTerms", !formData.agreeToTerms)
+                }
+                style={styles.termsCheckContainer}
+              >
+                <View
+                  style={[
+                    styles.checkbox,
+                    formData.agreeToTerms && styles.checkboxChecked,
+                  ]}
+                >
+                  {formData.agreeToTerms && (
+                    <Ionicons name="checkmark" size={14} color="white" />
+                  )}
+                </View>
+                <View style={styles.termsTextContainer}>
+                  <Text style={styles.termsText}>
+                    Saya menyetujui{" "}
+                    <Text style={styles.termsLink}>Syarat dan Ketentuan</Text>{" "}
+                    serta{" "}
+                    <Text style={styles.termsLink}>Kebijakan Privasi</Text> SAPA
+                    UMKM
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {errors.agreeToTerms && (
+                <Text style={styles.errorText}>{errors.agreeToTerms}</Text>
+              )}
+            </View>
+
+            {/* Error Message */}
+            {errors.general && (
+              <View style={styles.errorContainer}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={16}
+                  color="#EF4444"
+                />
+                <Text style={styles.generalErrorText}>{errors.general}</Text>
               </View>
+            )}
+
+            {/* Register Button */}
+            <TouchableOpacity
+              style={[
+                styles.registerButton,
+                loading && styles.registerButtonDisabled,
+              ]}
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              <LinearGradient
+                colors={
+                  loading ? ["#9CA3AF", "#6B7280"] : ["#4F46E5", "#7C3AED"]
+                }
+                style={styles.registerButtonGradient}
+              >
+                {loading ? (
+                  <View style={styles.loadingContainer}>
+                    <Text style={styles.registerButtonText}>Mendaftar...</Text>
+                  </View>
+                ) : (
+                  <>
+                    <Text style={styles.registerButtonText}>Daftar Akun</Text>
+                    <Ionicons name="arrow-forward" size={20} color="white" />
+                  </>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
-            {errors.agreeToTerms && (
-              <Text className="text-red-500 text-xs mt-1 ml-8">
-                {errors.agreeToTerms}
-              </Text>
+
+            {/* Sign In Link */}
+            {onSignIn && (
+              <View style={styles.signInContainer}>
+                <Text style={styles.signInText}>Sudah punya akun? </Text>
+                <TouchableOpacity onPress={onSignIn}>
+                  <Text style={styles.signInLink}>Masuk sekarang</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
-
-          {/* Error Message */}
-          {errors.general && (
-            <View className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <Text className="text-red-600 text-sm text-center">
-                {errors.general}
-              </Text>
-            </View>
-          )}
-
-          {/* Register Button */}
-          <Button
-            title="Daftar Akun"
-            onPress={handleSubmit}
-            loading={loading}
-            className="mt-6"
-          />
-
-          {/* Sign In Link */}
-          {onSignIn && (
-            <View className="flex-row items-center justify-center mt-6 mb-8">
-              <Text className="text-gray-600">Sudah punya akun? </Text>
-              <TouchableOpacity onPress={onSignIn}>
-                <Text className="text-blue-600 font-semibold">
-                  Masuk sekarang
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  backgroundGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: width,
+    height: height,
+  },
+  decorativeContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: width,
+    height: height,
+  },
+  circle: {
+    position: "absolute",
+    borderRadius: 1000,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  circle1: {
+    width: 200,
+    height: 200,
+    top: -100,
+    right: -50,
+  },
+  circle2: {
+    width: 150,
+    height: 150,
+    bottom: -75,
+    left: -30,
+  },
+  circle3: {
+    width: 100,
+    height: 100,
+    top: height * 0.25,
+    right: 30,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  contentContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  logoContainer: {
+    marginBottom: 20,
+  },
+  logoGradient: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  welcomeTitle: {
+    fontSize: 26,
+    fontWeight: "900",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  formContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 16,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  inputWrapperFocused: {
+    borderColor: "#4F46E5",
+    backgroundColor: "#FFF",
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  inputWrapperError: {
+    borderColor: "#EF4444",
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#111827",
+    paddingVertical: 4,
+  },
+  eyeIcon: {
+    padding: 4,
+  },
+  errorText: {
+    fontSize: 12,
+    color: "#EF4444",
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  roleContainer: {
+    gap: 12,
+  },
+  roleOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    padding: 16,
+  },
+  roleOptionSelected: {
+    backgroundColor: "#EEF2FF",
+    borderColor: "#4F46E5",
+  },
+  roleRadio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    marginRight: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  roleRadioSelected: {
+    borderColor: "#4F46E5",
+  },
+  roleRadioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#4F46E5",
+  },
+  roleContent: {
+    flex: 1,
+  },
+  roleTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 2,
+  },
+  roleDescription: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  roleSelectedText: {
+    color: "#4F46E5",
+  },
+  termsContainer: {
+    marginBottom: 24,
+  },
+  termsCheckContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    borderRadius: 4,
+    marginRight: 12,
+    marginTop: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: "#4F46E5",
+    borderColor: "#4F46E5",
+  },
+  termsTextContainer: {
+    flex: 1,
+  },
+  termsText: {
+    fontSize: 14,
+    color: "#6B7280",
+    lineHeight: 20,
+  },
+  termsLink: {
+    color: "#4F46E5",
+    fontWeight: "600",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+  },
+  generalErrorText: {
+    fontSize: 14,
+    color: "#EF4444",
+    marginLeft: 8,
+    flex: 1,
+  },
+  registerButton: {
+    borderRadius: 12,
+    marginBottom: 20,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  registerButtonDisabled: {
+    shadowOpacity: 0.1,
+  },
+  registerButtonGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  registerButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "white",
+    marginRight: 8,
+  },
+  signInContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  signInText: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  signInLink: {
+    fontSize: 14,
+    color: "#4F46E5",
+    fontWeight: "600",
+  },
+});

@@ -60,19 +60,19 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <View className="flex-1 px-6 py-4">
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
           <RegisterForm
             onSubmit={handleRegister}
             loading={loading}
             onSignIn={handleSignIn}
           />
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }

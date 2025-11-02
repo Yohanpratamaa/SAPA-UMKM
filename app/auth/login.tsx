@@ -60,20 +60,20 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <View className="flex-1 justify-center px-6">
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
           <LoginForm
             onSubmit={handleLogin}
             loading={loading}
             onForgotPassword={handleForgotPassword}
             onSignUp={handleSignUp}
           />
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }
