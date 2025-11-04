@@ -70,6 +70,11 @@ export default function ProfileListScreen() {
   }, [searchQuery, profiles]);
 
   const handleDeleteProfile = async (profile: UMKMProfile) => {
+    console.log(
+      "Profile List - Delete requested for profile:",
+      profile.id,
+      profile.namaUsaha
+    );
     Alert.alert(
       "Konfirmasi Hapus",
       `Apakah Anda yakin ingin menghapus profil "${profile.namaUsaha}"?`,
@@ -80,7 +85,9 @@ export default function ProfileListScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              console.log("Profile List - Deleting profile:", profile.id);
               await ProfileStorageService.deleteProfile(profile.id);
+              console.log("Profile List - Profile deleted successfully");
               await loadProfiles();
               Alert.alert("Berhasil", "Profil berhasil dihapus");
             } catch (error) {
@@ -140,18 +147,23 @@ export default function ProfileListScreen() {
     <ProfileCard
       profile={item}
       onPress={() => {
-        console.log("Navigating to detail with ID:", item.id);
-        router.push({
-          pathname: "/profile/[id]",
-          params: { id: item.id },
-        });
+        console.log("Profile List - Navigating to detail with ID:", item.id);
+        console.log("Profile List - Full item:", JSON.stringify(item, null, 2));
+        try {
+          router.push(`/profile/${item.id}`);
+          console.log("Profile List - Navigation called for detail");
+        } catch (error) {
+          console.error("Profile List - Navigation error for detail:", error);
+        }
       }}
       onEdit={() => {
-        console.log("Navigating to edit with ID:", item.id);
-        router.push({
-          pathname: "/profile/[id]/edit",
-          params: { id: item.id },
-        });
+        console.log("Profile List - Navigating to edit with ID:", item.id);
+        try {
+          router.push(`/profile/${item.id}/edit`);
+          console.log("Profile List - Navigation called for edit");
+        } catch (error) {
+          console.error("Profile List - Navigation error for edit:", error);
+        }
       }}
       onDelete={() => handleDeleteProfile(item)}
     />

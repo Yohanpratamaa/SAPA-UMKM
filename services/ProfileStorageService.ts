@@ -62,9 +62,19 @@ export class ProfileStorageService {
 
   static async deleteProfile(id: string): Promise<void> {
     try {
+      console.log("ProfileStorageService - Deleting profile with ID:", id);
       const profiles = await this.getAllProfiles();
+      console.log(
+        "ProfileStorageService - Profiles before delete:",
+        profiles.map((p) => ({ id: p.id, nama: p.namaUsaha }))
+      );
       const filteredProfiles = profiles.filter((p) => p.id !== id);
+      console.log(
+        "ProfileStorageService - Profiles after filter:",
+        filteredProfiles.map((p) => ({ id: p.id, nama: p.namaUsaha }))
+      );
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filteredProfiles));
+      console.log("ProfileStorageService - Profile deleted successfully");
     } catch (error) {
       console.error("Error deleting profile:", error);
       throw new Error("Gagal menghapus profil UMKM");

@@ -69,6 +69,11 @@ function ProfileListScreen() {
   }, [searchQuery, profiles]);
 
   const handleDeleteProfile = async (profile: UMKMProfile) => {
+    console.log(
+      "Tab Profile - Delete requested for profile:",
+      profile.id,
+      profile.namaUsaha
+    );
     Alert.alert(
       "Konfirmasi Hapus",
       `Apakah Anda yakin ingin menghapus profil "${profile.namaUsaha}"?`,
@@ -79,7 +84,9 @@ function ProfileListScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              console.log("Tab Profile - Deleting profile:", profile.id);
               await ProfileStorageService.deleteProfile(profile.id);
+              console.log("Tab Profile - Profile deleted successfully");
               await loadProfiles();
               Alert.alert("Berhasil", "Profil berhasil dihapus");
             } catch (error) {
@@ -96,10 +103,22 @@ function ProfileListScreen() {
     <ProfileCard
       profile={item}
       onPress={() => {
-        /* TODO: Add detail view */
+        console.log("Tab Profile - Navigating to detail with ID:", item.id);
+        try {
+          router.push(`/profile/${item.id}`);
+          console.log("Tab Profile - Navigation called for detail");
+        } catch (error) {
+          console.error("Tab Profile - Navigation error for detail:", error);
+        }
       }}
       onEdit={() => {
-        /* TODO: Add edit functionality */
+        console.log("Tab Profile - Navigating to edit with ID:", item.id);
+        try {
+          router.push(`/profile/${item.id}/edit`);
+          console.log("Tab Profile - Navigation called for edit");
+        } catch (error) {
+          console.error("Tab Profile - Navigation error for edit:", error);
+        }
       }}
       onDelete={() => handleDeleteProfile(item)}
     />

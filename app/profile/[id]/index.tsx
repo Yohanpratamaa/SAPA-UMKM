@@ -24,9 +24,11 @@ function ProfileDetailScreen() {
   const loadProfile = useCallback(async () => {
     // Handle both string and array cases from router params
     const profileId = Array.isArray(id) ? id[0] : id;
-    console.log("Detail (dynamic) - ID received:", profileId);
+    console.log("Detail (dynamic) - Raw ID from params:", id);
+    console.log("Detail (dynamic) - Processed ID:", profileId);
+    console.log("Detail (dynamic) - ID type:", typeof profileId);
 
-    if (!profileId || profileId === undefined) {
+    if (!profileId || profileId === undefined || profileId === null) {
       console.log("Detail (dynamic) - No ID found");
       Alert.alert("Error", "ID profil tidak ditemukan");
       router.back();
@@ -36,6 +38,14 @@ function ProfileDetailScreen() {
     try {
       setLoading(true);
       console.log("Detail (dynamic) - Loading profile with ID:", profileId);
+
+      // First, let's check all profiles
+      const allProfiles = await ProfileStorageService.getAllProfiles();
+      console.log(
+        "Detail (dynamic) - All available profiles:",
+        allProfiles.map((p) => ({ id: p.id, nama: p.namaUsaha }))
+      );
+
       const profileData = await ProfileStorageService.getProfileById(profileId);
       console.log("Detail (dynamic) - Profile loaded:", profileData);
 
@@ -68,10 +78,13 @@ function ProfileDetailScreen() {
   const handleEdit = () => {
     // Handle both string and array cases from router params
     const profileId = Array.isArray(id) ? id[0] : id;
-    router.push({
-      pathname: "/profile/[id]/edit",
-      params: { id: profileId },
-    });
+    console.log("Detail - Edit button pressed for ID:", profileId);
+    try {
+      router.push(`/profile/${profileId}/edit`);
+      console.log("Detail - Navigation called for edit");
+    } catch (error) {
+      console.error("Detail - Navigation error for edit:", error);
+    }
   };
 
   const handleDelete = () => {

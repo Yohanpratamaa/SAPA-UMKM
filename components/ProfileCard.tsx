@@ -39,7 +39,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => {
+        console.log("ProfileCard - Card pressed for ID:", profile.id);
+        onPress();
+      }}
       className="bg-white rounded-lg p-4 mb-3 shadow-sm border border-gray-200"
     >
       <View className="flex-row">
@@ -107,13 +110,31 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         {/* Action Buttons */}
         <View className="ml-2">
           {onEdit && (
-            <TouchableOpacity onPress={onEdit} className="p-2 mb-1">
+            <TouchableOpacity
+              onPress={() => {
+                console.log(
+                  "ProfileCard - Edit button pressed for ID:",
+                  profile.id
+                );
+                onEdit();
+              }}
+              className="p-2 mb-1"
+            >
               <Ionicons name="pencil-outline" size={18} color="#3B82F6" />
             </TouchableOpacity>
           )}
 
           {onDelete && (
-            <TouchableOpacity onPress={onDelete} className="p-2">
+            <TouchableOpacity
+              onPress={() => {
+                console.log(
+                  "ProfileCard - Delete button pressed for ID:",
+                  profile.id
+                );
+                onDelete();
+              }}
+              className="p-2"
+            >
               <Ionicons name="trash-outline" size={18} color="#EF4444" />
             </TouchableOpacity>
           )}
