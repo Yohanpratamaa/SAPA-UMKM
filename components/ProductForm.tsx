@@ -244,7 +244,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
+      <View className="bg-white border-b border-gray-200 px-4 pt-2 pb-4">
         <View className="flex-row items-center">
           {onBack && <BackButton onPress={onBack} className="mr-4" />}
           <Text className="text-lg font-semibold text-gray-900">

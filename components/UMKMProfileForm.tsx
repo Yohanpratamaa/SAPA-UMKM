@@ -118,7 +118,6 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView className="flex-1">
         {/* Header dengan tombol back */}
         {onBack && (
           <View className="bg-white border-b border-gray-200 px-4 py-4">
@@ -130,6 +129,7 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
             </View>
           </View>
         )}
+      <ScrollView className="flex-1">
 
         <View className="p-4">
           <View className="bg-white rounded-lg p-6 shadow-sm">

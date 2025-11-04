@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileCard } from "../../../components/ProfileCard";
 import { ProtectedRoute } from "../../../components/ProtectedRoute";
 import { ProfileStorageService } from "../../../services";
@@ -150,15 +151,15 @@ function ProfileListScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
         <ActivityIndicator size="large" color="#3B82F6" />
         <Text className="text-gray-600 mt-4">Memuat data profil...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row items-center justify-between mb-4">
@@ -238,7 +239,7 @@ function ProfileListScreen() {
         }
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

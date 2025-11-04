@@ -218,7 +218,7 @@ function ProductDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
+      <View className="bg-white border-b border-gray-200 px-4 pt-2 pb-4">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <BackButton onPress={handleBack} className="mr-4" />

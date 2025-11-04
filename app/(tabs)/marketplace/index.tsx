@@ -239,7 +239,7 @@ function TabMarketplaceScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-white px-4 py-4 border-b border-gray-200">
+      <View className="bg-white px-4 pt-2 pb-4 border-b border-gray-200">
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-2xl font-bold text-gray-900">
             Marketplace Digital
