@@ -8,6 +8,7 @@ interface UMKMProfileFormProps {
   onSubmit: (data: UMKMFormData) => void;
   onBack?: () => void;
   loading?: boolean;
+  isEdit?: boolean;
 }
 
 const jenisUsahaOptions: string[] = [
@@ -26,6 +27,7 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
   onSubmit,
   onBack,
   loading = false,
+  isEdit = false,
 }) => {
   const [formData, setFormData] = useState<UMKMFormData>({
     namaUsaha: initialData.namaUsaha || "",
@@ -122,7 +124,7 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
             <View className="flex-row items-center">
               <BackButton onPress={onBack} className="mr-4" />
               <Text className="text-lg font-semibold text-gray-900">
-                Tambah Profil UMKM
+                {isEdit ? "Edit Profil UMKM" : "Tambah Profil UMKM"}
               </Text>
             </View>
           </View>
@@ -298,7 +300,7 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
             </View>
 
             <Button
-              title="Simpan Profil"
+              title={isEdit ? "Perbarui Profil" : "Simpan Profil"}
               onPress={handleSubmit}
               loading={loading}
               className="mt-4"

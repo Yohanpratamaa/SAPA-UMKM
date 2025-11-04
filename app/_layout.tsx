@@ -18,6 +18,34 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="profile/edit"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="profile/detail"
+          options={{
+            presentation: "card",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="profile/[id]/index"
+          options={{
+            presentation: "card",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="profile/[id]/edit"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
       </Stack>
     </AuthProvider>
   );

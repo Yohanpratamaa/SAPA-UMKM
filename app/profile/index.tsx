@@ -23,7 +23,7 @@ export default function ProfileListScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const loadProfiles = async () => {
     try {
@@ -131,7 +131,7 @@ export default function ProfileListScreen() {
           { text: "OK" },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to get debug info");
     }
   };
@@ -139,8 +139,20 @@ export default function ProfileListScreen() {
   const renderProfile = ({ item }: { item: UMKMProfile }) => (
     <ProfileCard
       profile={item}
-      onPress={() => Alert.alert("Info", `Profil: ${item.namaUsaha}`)}
-      onEdit={() => Alert.alert("Info", "Fitur edit akan segera tersedia")}
+      onPress={() => {
+        console.log("Navigating to detail with ID:", item.id);
+        router.push({
+          pathname: "/profile/[id]",
+          params: { id: item.id },
+        });
+      }}
+      onEdit={() => {
+        console.log("Navigating to edit with ID:", item.id);
+        router.push({
+          pathname: "/profile/[id]/edit",
+          params: { id: item.id },
+        });
+      }}
       onDelete={() => handleDeleteProfile(item)}
     />
   );

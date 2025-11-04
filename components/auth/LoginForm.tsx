@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -40,6 +40,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [errors, setErrors] = useState<LoginValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Refs for TextInput components
+  const emailInputRef = useRef<TextInput>(null);
+  const passwordInputRef = useRef<TextInput>(null);
 
   const validateForm = (): boolean => {
     const newErrors: LoginValidationErrors = {};
@@ -117,7 +121,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           {/* Email/Username Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Email atau Username</Text>
-            <View
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {
+                // Focus the TextInput when the wrapper is pressed
+                const input = emailInputRef.current;
+                if (input) {
+                  input.focus();
+                }
+              }}
               style={[
                 styles.inputWrapper,
                 focusedField === "emailOrUsername" &&
@@ -134,6 +146,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 style={styles.inputIcon}
               />
               <TextInput
+                ref={emailInputRef}
                 style={styles.textInput}
                 value={formData.emailOrUsername}
                 onChangeText={(value) => updateField("emailOrUsername", value)}
@@ -144,7 +157,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 onFocus={() => setFocusedField("emailOrUsername")}
                 onBlur={() => setFocusedField(null)}
               />
-            </View>
+            </TouchableOpacity>
             {errors.emailOrUsername && (
               <Text style={styles.errorText}>{errors.emailOrUsername}</Text>
             )}
@@ -153,7 +166,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           {/* Password Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Password</Text>
-            <View
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {
+                // Focus the TextInput when the wrapper is pressed
+                const input = passwordInputRef.current;
+                if (input) {
+                  input.focus();
+                }
+              }}
               style={[
                 styles.inputWrapper,
                 focusedField === "password" && styles.inputWrapperFocused,
@@ -167,6 +188,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 style={styles.inputIcon}
               />
               <TextInput
+                ref={passwordInputRef}
                 style={[styles.textInput, { flex: 1 }]}
                 value={formData.password}
                 onChangeText={(value) => updateField("password", value)}
@@ -179,6 +201,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeIcon}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
                   name={showPassword ? "eye-off-outline" : "eye-outline"}
@@ -186,7 +209,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   color="#9CA3AF"
                 />
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
             {errors.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
             )}
@@ -321,6 +344,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: width,
     height: height,
+    zIndex: -1, // Ensure decorative elements are behind everything
+    pointerEvents: "none", // Prevent decorative elements from intercepting touches
   },
   circle: {
     position: "absolute",
@@ -395,9 +420,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 10,
+    zIndex: 100, // Ensure form is above all decorative elements
+    position: "relative",
   },
   inputContainer: {
     marginBottom: 20,
+    zIndex: 50, // Ensure input container is above decorative elements
+    position: "relative",
   },
   inputLabel: {
     fontSize: 14,
@@ -414,6 +443,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    minHeight: 50, // Ensure minimum touch area
+    zIndex: 10, // Ensure input is above decorative elements
   },
   inputWrapperFocused: {
     borderColor: "#4F46E5",
@@ -434,10 +465,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#111827",
-    paddingVertical: 4,
+    paddingVertical: 8, // Increased touch area
+    minHeight: 24, // Ensure minimum height for text
   },
   eyeIcon: {
-    padding: 4,
+    padding: 8, // Increased padding for better touch area
+    marginLeft: 4,
+    borderRadius: 4,
   },
   errorText: {
     fontSize: 12,

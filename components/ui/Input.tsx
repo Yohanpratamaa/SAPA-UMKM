@@ -27,6 +27,10 @@ export const Input: React.FC<InputProps> = ({
           error ? "border-red-500" : "border-gray-300"
         } ${className}`}
         placeholderTextColor="#9CA3AF"
+        style={{
+          minHeight: 48, // Ensure minimum touch area
+          fontSize: 16, // Prevent zoom on iOS
+        }}
         {...props}
       />
       {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
