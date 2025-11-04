@@ -1,566 +1,563 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { router } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
   FlatList,
+  Image,
   Modal,
-  RefreshControl,
+  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
-import { TrainingCard } from "../../components/TrainingCard";
-import { TrainingStorageService } from "../../services";
-import {
-  KATEGORI_TRAINING,
-  LEVEL_TRAINING,
-  TIPE_TRAINING,
-  Training,
-  TrainingFilter,
-} from "../../types";
+
+// Data training modules untuk membangun bisnis
+const businessTrainingModules = [
+  {
+    id: "1",
+    title: "Memahami Dasar-Dasar Bisnis",
+    description:
+      "Pelajari konsep fundamental dalam membangun bisnis dari nol hingga sukses",
+    duration: "45 menit",
+    type: "Video + Artikel",
+    difficulty: "Pemula",
+    thumbnail:
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
+    modules: [
+      {
+        id: "1-1",
+        title: "Apa itu Bisnis?",
+        type: "Video",
+        duration: "12 menit",
+        content:
+          "Pengenalan konsep bisnis, jenis-jenis bisnis, dan peluang bisnis di era digital",
+      },
+      {
+        id: "1-2",
+        title: "Mindset Entrepreneur",
+        type: "Artikel",
+        duration: "15 menit",
+        content:
+          "Membangun pola pikir wirausaha yang sukses dan mengatasi ketakutan memulai bisnis",
+      },
+      {
+        id: "1-3",
+        title: "Analisis Peluang Bisnis",
+        type: "Video",
+        duration: "18 menit",
+        content:
+          "Cara mengidentifikasi dan mengevaluasi peluang bisnis yang menguntungkan",
+      },
+    ],
+  },
+  {
+    id: "2",
+    title: "Riset Pasar dan Target Customer",
+    description:
+      "Memahami pasar dan menentukan target customer yang tepat untuk bisnis Anda",
+    duration: "60 menit",
+    type: "Video + Artikel",
+    difficulty: "Pemula",
+    thumbnail:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400",
+    modules: [
+      {
+        id: "2-1",
+        title: "Teknik Riset Pasar",
+        type: "Video",
+        duration: "20 menit",
+        content: "Metode dan tools untuk melakukan riset pasar yang efektif",
+      },
+      {
+        id: "2-2",
+        title: "Menentukan Target Market",
+        type: "Video",
+        duration: "18 menit",
+        content:
+          "Cara mengidentifikasi dan mendefinisikan target customer yang ideal",
+      },
+      {
+        id: "2-3",
+        title: "Analisis Kompetitor",
+        type: "Artikel",
+        duration: "22 menit",
+        content:
+          "Strategi menganalisis kompetitor dan mencari competitive advantage",
+      },
+    ],
+  },
+  {
+    id: "3",
+    title: "Perencanaan Bisnis & Business Model",
+    description:
+      "Menyusun rencana bisnis yang solid dan memilih model bisnis yang tepat",
+    duration: "75 menit",
+    type: "Video + Artikel",
+    difficulty: "Menengah",
+    thumbnail:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400",
+    modules: [
+      {
+        id: "3-1",
+        title: "Business Model Canvas",
+        type: "Video",
+        duration: "25 menit",
+        content:
+          "Memahami dan menggunakan Business Model Canvas untuk merancang bisnis",
+      },
+      {
+        id: "3-2",
+        title: "Menyusun Business Plan",
+        type: "Video",
+        duration: "30 menit",
+        content:
+          "Langkah-langkah membuat rencana bisnis yang komprehensif dan menarik investor",
+      },
+      {
+        id: "3-3",
+        title: "Strategi Penetapan Harga",
+        type: "Artikel",
+        duration: "20 menit",
+        content:
+          "Berbagai metode penetapan harga yang menguntungkan dan kompetitif",
+      },
+    ],
+  },
+  {
+    id: "4",
+    title: "Digital Marketing untuk UMKM",
+    description:
+      "Strategi pemasaran digital yang efektif untuk mengembangkan bisnis UMKM",
+    duration: "90 menit",
+    type: "Video + Artikel",
+    difficulty: "Menengah",
+    thumbnail:
+      "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=400",
+    modules: [
+      {
+        id: "4-1",
+        title: "Social Media Marketing",
+        type: "Video",
+        duration: "25 menit",
+        content: "Strategi pemasaran di Instagram, Facebook, TikTok untuk UMKM",
+      },
+      {
+        id: "4-2",
+        title: "Content Marketing Strategy",
+        type: "Video",
+        duration: "30 menit",
+        content: "Membuat konten yang menarik dan meningkatkan engagement",
+      },
+      {
+        id: "4-3",
+        title: "SEO untuk Bisnis Lokal",
+        type: "Artikel",
+        duration: "20 menit",
+        content: "Optimasi website dan Google My Business untuk bisnis lokal",
+      },
+      {
+        id: "4-4",
+        title: "Email Marketing & WhatsApp Business",
+        type: "Video",
+        duration: "15 menit",
+        content:
+          "Memanfaatkan email dan WhatsApp untuk komunikasi dengan customer",
+      },
+    ],
+  },
+  {
+    id: "5",
+    title: "Manajemen Keuangan Bisnis",
+    description:
+      "Mengelola keuangan bisnis dengan baik untuk pertumbuhan yang berkelanjutan",
+    duration: "80 menit",
+    type: "Video + Artikel",
+    difficulty: "Menengah",
+    thumbnail:
+      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
+    modules: [
+      {
+        id: "5-1",
+        title: "Pencatatan Keuangan Sederhana",
+        type: "Video",
+        duration: "22 menit",
+        content: "Sistem pencatatan keuangan yang mudah untuk UMKM",
+      },
+      {
+        id: "5-2",
+        title: "Cash Flow Management",
+        type: "Video",
+        duration: "25 menit",
+        content: "Mengelola arus kas untuk menjaga likuiditas bisnis",
+      },
+      {
+        id: "5-3",
+        title: "Analisis Laporan Keuangan",
+        type: "Artikel",
+        duration: "18 menit",
+        content:
+          "Membaca dan menganalisis laporan keuangan untuk pengambilan keputusan",
+      },
+      {
+        id: "5-4",
+        title: "Strategi Investasi & Pinjaman",
+        type: "Video",
+        duration: "15 menit",
+        content:
+          "Memahami sumber pendanaan dan strategi investasi untuk pertumbuhan",
+      },
+    ],
+  },
+  {
+    id: "6",
+    title: "Scaling & Mengembangkan Bisnis",
+    description:
+      "Strategi untuk mengembangkan dan memperbesar skala bisnis Anda",
+    duration: "70 menit",
+    type: "Video + Artikel",
+    difficulty: "Lanjutan",
+    thumbnail:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+    modules: [
+      {
+        id: "6-1",
+        title: "Membangun Tim yang Solid",
+        type: "Video",
+        duration: "20 menit",
+        content: "Strategi rekrutmen dan membangun budaya kerja yang positif",
+      },
+      {
+        id: "6-2",
+        title: "Sistem & Proses Bisnis",
+        type: "Video",
+        duration: "25 menit",
+        content: "Membuat sistem operasional yang efisien dan dapat di-scale",
+      },
+      {
+        id: "6-3",
+        title: "Ekspansi Pasar",
+        type: "Artikel",
+        duration: "15 menit",
+        content: "Strategi memperluas jangkauan pasar dan diversifikasi produk",
+      },
+      {
+        id: "6-4",
+        title: "Teknologi untuk Bisnis",
+        type: "Video",
+        duration: "10 menit",
+        content: "Memanfaatkan teknologi untuk otomatisasi dan efisiensi",
+      },
+    ],
+  },
+];
 
 function TabTrainingScreen() {
-  const [trainings, setTrainings] = useState<Training[]>([]);
-  const [filteredTrainings, setFilteredTrainings] = useState<Training[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-  const [filter, setFilter] = useState<TrainingFilter>({});
+  const router = useRouter();
+  const [selectedModule, setSelectedModule] = useState<any>(null);
+  const [showModuleDetail, setShowModuleDetail] = useState(false);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-
-      // Load trainings
-      const allTrainings = await TrainingStorageService.getAllTrainings();
-      const activeTrainings = allTrainings.filter((t) => t.isAktif);
-      setTrainings(activeTrainings);
-
-      console.log("Tab Training - Loaded", activeTrainings.length, "trainings");
-    } catch (error) {
-      console.error("Error loading training data:", error);
-      Alert.alert("Error", "Gagal memuat data pelatihan");
-    } finally {
-      setLoading(false);
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Pemula":
+        return "bg-green-100 text-green-800";
+      case "Menengah":
+        return "bg-blue-100 text-blue-800";
+      case "Lanjutan":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [])
-  );
-
-  useEffect(() => {
-    // Apply search and filter
-    let filtered = trainings;
-
-    // Text search
-    if (searchQuery.trim()) {
-      const lowercaseQuery = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (training) =>
-          training.judul.toLowerCase().includes(lowercaseQuery) ||
-          training.deskripsi.toLowerCase().includes(lowercaseQuery) ||
-          training.instruktur.toLowerCase().includes(lowercaseQuery) ||
-          training.tags?.some((tag) =>
-            tag.toLowerCase().includes(lowercaseQuery)
-          ) ||
-          training.kategori.toLowerCase().includes(lowercaseQuery)
-      );
-    }
-
-    // Apply filters
-    if (filter.kategori) {
-      filtered = filtered.filter((t) => t.kategori === filter.kategori);
-    }
-
-    if (filter.tipeTraining) {
-      filtered = filtered.filter((t) => t.tipeTraining === filter.tipeTraining);
-    }
-
-    if (filter.level) {
-      filtered = filtered.filter((t) => t.level === filter.level);
-    }
-
-    if (filter.hargaMin !== undefined) {
-      filtered = filtered.filter((t) => t.harga >= filter.hargaMin!);
-    }
-
-    if (filter.hargaMax !== undefined) {
-      filtered = filtered.filter((t) => t.harga <= filter.hargaMax!);
-    }
-
-    if (filter.gratisOnly) {
-      filtered = filtered.filter((t) => t.harga === 0);
-    }
-
-    if (filter.sertifikatTersedia) {
-      filtered = filtered.filter((t) => t.sertifikatTersedia);
-    }
-
-    if (filter.ratingMin !== undefined) {
-      filtered = filtered.filter((t) => t.rating >= filter.ratingMin!);
-    }
-
-    setFilteredTrainings(filtered);
-  }, [searchQuery, trainings, filter]);
-
-  const handleDeleteTraining = async (training: Training) => {
-    console.log(
-      "Tab Training - Delete requested for training:",
-      training.id,
-      training.judul
-    );
-    Alert.alert(
-      "Konfirmasi Hapus",
-      `Apakah Anda yakin ingin menghapus pelatihan "${training.judul}"?`,
-      [
-        { text: "Batal", style: "cancel" },
-        {
-          text: "Hapus",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              console.log("Tab Training - Deleting training:", training.id);
-              await TrainingStorageService.deleteTraining(training.id);
-              console.log("Tab Training - Training deleted successfully");
-              await loadData();
-              Alert.alert("Berhasil", "Pelatihan berhasil dihapus");
-            } catch (error) {
-              console.error("Error deleting training:", error);
-              Alert.alert("Error", "Gagal menghapus pelatihan");
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const renderTraining = ({ item }: { item: Training }) => (
-    <TrainingCard
-      training={item}
+  const renderTrainingCard = ({ item }: { item: any }) => (
+    <TouchableOpacity
       onPress={() => {
-        console.log(
-          "Tab Training - Navigating to training detail with ID:",
-          item.id
-        );
-        try {
-          router.push({
-            pathname: "/training/[id]" as any,
-            params: { id: item.id },
-          });
-          console.log("Tab Training - Navigation called for detail");
-        } catch (error) {
-          console.error("Tab Training - Navigation error for detail:", error);
-        }
+        setSelectedModule(item);
+        setShowModuleDetail(true);
       }}
-      onEdit={() => {
-        console.log(
-          "Tab Training - Navigating to training edit with ID:",
-          item.id
-        );
-        try {
-          router.push({
-            pathname: "/training/[id]/edit" as any,
-            params: { id: item.id },
-          });
-          console.log("Tab Training - Navigation called for edit");
-        } catch (error) {
-          console.error("Tab Training - Navigation error for edit:", error);
-        }
-      }}
-      onDelete={() => handleDeleteTraining(item)}
-    />
-  );
+      className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden"
+      activeOpacity={0.7}
+    >
+      {/* Thumbnail */}
+      <View className="relative">
+        <Image
+          source={{ uri: item.thumbnail }}
+          className="w-full h-48"
+          resizeMode="cover"
+        />
 
-  const renderEmptyState = () => (
-    <View className="flex-1 items-center justify-center py-16">
-      <Ionicons name="school-outline" size={64} color="#9CA3AF" />
-      <Text className="text-gray-500 text-lg mt-4 mb-2">
-        {searchQuery || Object.keys(filter).length > 0
-          ? "Tidak ada pelatihan yang ditemukan"
-          : "Belum ada pelatihan"}
-      </Text>
-      <Text className="text-gray-400 text-center px-8 mb-6">
-        {searchQuery || Object.keys(filter).length > 0
-          ? "Coba ubah kata kunci atau filter pencarian"
-          : "Mulai tambahkan pelatihan pertama Anda"}
-      </Text>
-      {!searchQuery && Object.keys(filter).length === 0 && (
-        <TouchableOpacity
-          onPress={() => router.push("/training/create")}
-          className="bg-blue-600 px-6 py-3 rounded-lg"
+        {/* Duration Badge */}
+        <View className="absolute top-3 right-3 bg-black bg-opacity-60 px-3 py-2 rounded-full">
+          <Text className="text-white text-sm font-medium">
+            {item.duration}
+          </Text>
+        </View>
+
+        {/* Type Badge */}
+        <View className="absolute top-3 left-3 bg-blue-600 px-3 py-2 rounded-full">
+          <Text className="text-white text-sm font-bold">{item.type}</Text>
+        </View>
+      </View>
+
+      {/* Content */}
+      <View className="p-4">
+        {/* Header with difficulty badge */}
+        <View className="flex-row items-center justify-between mb-3">
+          <View
+            className={`px-3 py-1 rounded-full ${getDifficultyColor(
+              item.difficulty
+            )}`}
+          >
+            <Text className="text-sm font-medium">{item.difficulty}</Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <Ionicons name="play-circle-outline" size={16} color="#6B7280" />
+            <Text className="text-gray-600 text-sm ml-1">
+              {item.modules.length} modul
+            </Text>
+          </View>
+        </View>
+
+        {/* Title */}
+        <Text
+          className="text-lg font-bold text-gray-900 mb-2"
+          numberOfLines={2}
         >
-          <Text className="text-white font-semibold">Tambah Pelatihan</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+          {item.title}
+        </Text>
+
+        {/* Description */}
+        <Text className="text-gray-600 text-sm mb-3" numberOfLines={2}>
+          {item.description}
+        </Text>
+
+        {/* Module Preview */}
+        <View className="border-t border-gray-100 pt-3">
+          <Text className="text-gray-700 text-sm font-medium mb-2">
+            Modul Pembelajaran:
+          </Text>
+          {item.modules.slice(0, 2).map((module: any, index: number) => (
+            <View key={module.id} className="flex-row items-center mb-1">
+              <Ionicons
+                name={
+                  module.type === "Video"
+                    ? "play-circle-outline"
+                    : "document-text-outline"
+                }
+                size={14}
+                color="#6B7280"
+              />
+              <Text
+                className="text-gray-600 text-xs ml-2 flex-1"
+                numberOfLines={1}
+              >
+                {index + 1}. {module.title}
+              </Text>
+            </View>
+          ))}
+          {item.modules.length > 2 && (
+            <Text className="text-blue-600 text-xs font-medium">
+              +{item.modules.length - 2} modul lainnya
+            </Text>
+          )}
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 
-  const clearFilter = () => {
-    setFilter({});
-    setShowFilter(false);
-  };
+  const renderModuleDetailModal = () => (
+    <Modal
+      visible={showModuleDetail}
+      animationType="slide"
+      presentationStyle="pageSheet"
+    >
+      <SafeAreaView className="flex-1 bg-gray-50">
+        {/* Header */}
+        <View className="bg-white border-b border-gray-200 px-4 pt-2 pb-4">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-lg font-semibold text-gray-900">
+              Detail Pelatihan
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowModuleDetail(false)}
+              className="bg-gray-100 p-2 rounded-full"
+            >
+              <Ionicons name="close" size={20} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-  const applyFilter = (newFilter: TrainingFilter) => {
-    setFilter(newFilter);
-    setShowFilter(false);
-  };
+        {selectedModule && (
+          <ScrollView className="flex-1">
+            {/* Header Image */}
+            <Image
+              source={{ uri: selectedModule.thumbnail }}
+              className="w-full h-48"
+              resizeMode="cover"
+            />
 
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
-        <ActivityIndicator size="large" color="#3B82F6" />
-        <Text className="text-gray-600 mt-4">Memuat pelatihan...</Text>
+            <View className="p-4">
+              {/* Title & Info */}
+              <View className="mb-4">
+                <Text className="text-2xl font-bold text-gray-900 mb-2">
+                  {selectedModule.title}
+                </Text>
+
+                <View className="flex-row items-center mb-3">
+                  <View
+                    className={`px-3 py-1 rounded-full mr-3 ${getDifficultyColor(
+                      selectedModule.difficulty
+                    )}`}
+                  >
+                    <Text className="text-sm font-medium">
+                      {selectedModule.difficulty}
+                    </Text>
+                  </View>
+
+                  <View className="flex-row items-center">
+                    <Ionicons name="time-outline" size={16} color="#6B7280" />
+                    <Text className="text-gray-600 text-sm ml-1">
+                      {selectedModule.duration}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text className="text-gray-700 text-base leading-6">
+                  {selectedModule.description}
+                </Text>
+              </View>
+
+              {/* Modules List */}
+              <View className="mb-6">
+                <Text className="text-xl font-bold text-gray-900 mb-4">
+                  Daftar Modul ({selectedModule.modules.length} modul)
+                </Text>
+
+                {selectedModule.modules.map((module: any, index: number) => (
+                  <TouchableOpacity
+                    key={module.id}
+                    className="bg-white rounded-lg p-4 mb-3 border border-gray-200"
+                    onPress={() => {
+                      // Navigate to module content
+                      router.push({
+                        pathname: "/training/[id]" as any,
+                        params: {
+                          id: selectedModule.id,
+                          moduleId: module.id,
+                        },
+                      });
+                    }}
+                  >
+                    <View className="flex-row items-start">
+                      <View className="bg-blue-100 w-8 h-8 rounded-full items-center justify-center mr-3">
+                        <Text className="text-blue-600 font-bold text-sm">
+                          {index + 1}
+                        </Text>
+                      </View>
+
+                      <View className="flex-1">
+                        <Text className="text-gray-900 font-semibold mb-1">
+                          {module.title}
+                        </Text>
+
+                        <Text className="text-gray-600 text-sm mb-2">
+                          {module.content}
+                        </Text>
+
+                        <View className="flex-row items-center">
+                          <Ionicons
+                            name={
+                              module.type === "Video"
+                                ? "play-circle-outline"
+                                : "document-text-outline"
+                            }
+                            size={14}
+                            color="#6B7280"
+                          />
+                          <Text className="text-gray-500 text-xs ml-1">
+                            {module.type}
+                          </Text>
+                          <Text className="text-gray-500 text-xs mx-2">•</Text>
+                          <Text className="text-gray-500 text-xs">
+                            {module.duration}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="#6B7280"
+                      />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        )}
       </SafeAreaView>
-    );
-  }
+    </Modal>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 pt-2 pb-4 border-b border-gray-200">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-2xl font-bold text-gray-900">
-            Pelatihan & Edukasi Digital
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.push("/training/create")}
-            className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
-          >
-            <Ionicons name="add" size={20} color="white" />
-            <Text className="text-white font-semibold ml-1">Tambah</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Bar */}
-        <View className="flex-row items-center space-x-2">
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-4 py-3">
-            <Ionicons name="search-outline" size={20} color="#6B7280" />
-            <TextInput
-              className="flex-1 ml-3 text-gray-900"
-              placeholder="Cari pelatihan, instruktur, kategori..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#9CA3AF"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={20} color="#6B7280" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Filter Button */}
-          <TouchableOpacity
-            onPress={() => setShowFilter(true)}
-            className={`p-3 rounded-lg ${
-              Object.keys(filter).length > 0 ? "bg-blue-600" : "bg-gray-100"
-            }`}
-          >
-            <Ionicons
-              name="funnel-outline"
-              size={20}
-              color={Object.keys(filter).length > 0 ? "white" : "#6B7280"}
-            />
-          </TouchableOpacity>
-        </View>
+        <Text className="text-2xl font-bold text-gray-900 mb-2">
+          Pelatihan Bisnis UMKM
+        </Text>
+        <Text className="text-gray-600">
+          Pelajari cara membangun dan mengembangkan bisnis yang sukses
+        </Text>
       </View>
 
       {/* Statistics */}
-      {trainings.length > 0 && (
-        <View className="bg-white px-4 py-3 border-b border-gray-200">
-          <View className="flex-row justify-between">
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-blue-600">
-                {filteredTrainings.length}
-              </Text>
-              <Text className="text-sm text-gray-600">Pelatihan</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-green-600">
-                {trainings.filter((t) => t.harga === 0).length}
-              </Text>
-              <Text className="text-sm text-gray-600">Gratis</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-purple-600">
-                {new Set(trainings.map((t) => t.kategori)).size}
-              </Text>
-              <Text className="text-sm text-gray-600">Kategori</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-orange-600">
-                {trainings.filter((t) => t.sertifikatTersedia).length}
-              </Text>
-              <Text className="text-sm text-gray-600">Bersertifikat</Text>
-            </View>
-          </View>
-        </View>
-      )}
-
-      {/* Active Filters */}
-      {Object.keys(filter).length > 0 && (
-        <View className="bg-blue-50 px-4 py-2 border-b border-blue-200">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-blue-700 text-sm">
-              Filter aktif: {Object.keys(filter).length}
+      <View className="bg-white px-4 py-3 border-b border-gray-200">
+        <View className="flex-row justify-between">
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-blue-600">
+              {businessTrainingModules.length}
             </Text>
-            <TouchableOpacity onPress={clearFilter}>
-              <Text className="text-blue-600 text-sm font-medium">
-                Hapus Filter
-              </Text>
-            </TouchableOpacity>
+            <Text className="text-sm text-gray-600">Pelatihan</Text>
           </View>
-        </View>
-      )}
-
-      {/* Training List */}
-      <FlatList
-        data={filteredTrainings}
-        renderItem={renderTraining}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16 }}
-        ListEmptyComponent={renderEmptyState}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#3B82F6"]}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-      />
-
-      {/* Filter Modal */}
-      <FilterModal
-        visible={showFilter}
-        onClose={() => setShowFilter(false)}
-        onApply={applyFilter}
-        currentFilter={filter}
-      />
-    </SafeAreaView>
-  );
-}
-
-// Filter Modal Component
-interface FilterModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onApply: (filter: TrainingFilter) => void;
-  currentFilter: TrainingFilter;
-}
-
-const FilterModal: React.FC<FilterModalProps> = ({
-  visible,
-  onClose,
-  onApply,
-  currentFilter,
-}) => {
-  const [tempFilter, setTempFilter] = useState<TrainingFilter>(currentFilter);
-
-  useEffect(() => {
-    setTempFilter(currentFilter);
-  }, [currentFilter]);
-
-  const handleApply = () => {
-    onApply(tempFilter);
-  };
-
-  const handleClear = () => {
-    setTempFilter({});
-  };
-
-  return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View className="flex-1 bg-black bg-opacity-50 justify-end">
-        <View className="bg-white rounded-t-lg max-h-3/4">
-          {/* Header */}
-          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-            <Text className="text-lg font-semibold">Filter Pelatihan</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="#6B7280" />
-            </TouchableOpacity>
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-green-600">
+              {businessTrainingModules.reduce(
+                (total, module) => total + module.modules.length,
+                0
+              )}
+            </Text>
+            <Text className="text-sm text-gray-600">Total Modul</Text>
           </View>
-
-          <View className="p-4 max-h-96">
-            {/* Kategori */}
-            <Text className="text-gray-700 font-medium mb-2">Kategori</Text>
-            <View className="flex-row flex-wrap mb-4">
-              {KATEGORI_TRAINING.map((kategori) => (
-                <TouchableOpacity
-                  key={kategori}
-                  onPress={() =>
-                    setTempFilter((prev) => ({
-                      ...prev,
-                      kategori:
-                        prev.kategori === kategori ? undefined : kategori,
-                    }))
-                  }
-                  className={`mr-2 mb-2 px-3 py-1 rounded-full border ${
-                    tempFilter.kategori === kategori
-                      ? "bg-blue-600 border-blue-600"
-                      : "bg-white border-gray-300"
-                  }`}
-                >
-                  <Text
-                    className={
-                      tempFilter.kategori === kategori
-                        ? "text-white text-sm"
-                        : "text-gray-700 text-sm"
-                    }
-                  >
-                    {kategori}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Tipe Training */}
-            <Text className="text-gray-700 font-medium mb-2">Tipe</Text>
-            <View className="flex-row flex-wrap mb-4">
-              {TIPE_TRAINING.map((tipe) => (
-                <TouchableOpacity
-                  key={tipe}
-                  onPress={() =>
-                    setTempFilter((prev) => ({
-                      ...prev,
-                      tipeTraining:
-                        prev.tipeTraining === tipe ? undefined : tipe,
-                    }))
-                  }
-                  className={`mr-2 mb-2 px-3 py-1 rounded-full border ${
-                    tempFilter.tipeTraining === tipe
-                      ? "bg-green-600 border-green-600"
-                      : "bg-white border-gray-300"
-                  }`}
-                >
-                  <Text
-                    className={
-                      tempFilter.tipeTraining === tipe
-                        ? "text-white text-sm"
-                        : "text-gray-700 text-sm"
-                    }
-                  >
-                    {tipe}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Level */}
-            <Text className="text-gray-700 font-medium mb-2">Level</Text>
-            <View className="flex-row flex-wrap mb-4">
-              {LEVEL_TRAINING.map((level) => (
-                <TouchableOpacity
-                  key={level}
-                  onPress={() =>
-                    setTempFilter((prev) => ({
-                      ...prev,
-                      level: prev.level === level ? undefined : level,
-                    }))
-                  }
-                  className={`mr-2 mb-2 px-3 py-1 rounded-full border ${
-                    tempFilter.level === level
-                      ? "bg-purple-600 border-purple-600"
-                      : "bg-white border-gray-300"
-                  }`}
-                >
-                  <Text
-                    className={
-                      tempFilter.level === level
-                        ? "text-white text-sm"
-                        : "text-gray-700 text-sm"
-                    }
-                  >
-                    {level}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Options */}
-            <TouchableOpacity
-              onPress={() =>
-                setTempFilter((prev) => ({
-                  ...prev,
-                  gratisOnly: !prev.gratisOnly,
-                }))
-              }
-              className="flex-row items-center mb-3"
-            >
-              <View
-                className={`w-5 h-5 rounded border mr-3 items-center justify-center ${
-                  tempFilter.gratisOnly
-                    ? "bg-blue-600 border-blue-600"
-                    : "border-gray-300"
-                }`}
-              >
-                {tempFilter.gratisOnly && (
-                  <Ionicons name="checkmark" size={14} color="white" />
-                )}
-              </View>
-              <Text className="text-gray-700">Hanya yang gratis</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() =>
-                setTempFilter((prev) => ({
-                  ...prev,
-                  sertifikatTersedia: !prev.sertifikatTersedia,
-                }))
-              }
-              className="flex-row items-center mb-4"
-            >
-              <View
-                className={`w-5 h-5 rounded border mr-3 items-center justify-center ${
-                  tempFilter.sertifikatTersedia
-                    ? "bg-blue-600 border-blue-600"
-                    : "border-gray-300"
-                }`}
-              >
-                {tempFilter.sertifikatTersedia && (
-                  <Ionicons name="checkmark" size={14} color="white" />
-                )}
-              </View>
-              <Text className="text-gray-700">Ada sertifikat digital</Text>
-            </TouchableOpacity>
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-purple-600">100%</Text>
+            <Text className="text-sm text-gray-600">Gratis</Text>
           </View>
-
-          {/* Action Buttons */}
-          <View className="flex-row p-4 border-t border-gray-200">
-            <TouchableOpacity
-              onPress={handleClear}
-              className="flex-1 mr-2 py-3 border border-gray-300 rounded-lg items-center"
-            >
-              <Text className="text-gray-700 font-medium">Hapus Filter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleApply}
-              className="flex-1 ml-2 py-3 bg-blue-600 rounded-lg items-center"
-            >
-              <Text className="text-white font-medium">Terapkan</Text>
-            </TouchableOpacity>
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-orange-600">6</Text>
+            <Text className="text-sm text-gray-600">Kategori</Text>
           </View>
         </View>
       </View>
-    </Modal>
+
+      {/* Training List */}
+      <FlatList
+        data={businessTrainingModules}
+        renderItem={renderTrainingCard}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
+      />
+
+      {/* Module Detail Modal */}
+      {renderModuleDetailModal()}
+    </SafeAreaView>
   );
-};
+}
 
 export default function ProtectedTabTrainingScreen() {
   return (
