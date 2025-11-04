@@ -6,7 +6,7 @@ import { useAuth } from "../../contexts";
 
 export default function HomeScreen() {
   const { user, logout } = useAuth();
-  
+
   // Debug: Check if logout function is available
   console.log("🔍 HomeScreen: useAuth logout function:", typeof logout);
 
@@ -55,42 +55,16 @@ export default function HomeScreen() {
     }
   };
 
-  const handleLogout = () => {
-    console.log("🚪 HomeScreen: handleLogout called");
-    Alert.alert("Logout", "Apakah Anda yakin ingin keluar dari aplikasi?", [
-      { text: "Batal", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          console.log("🚪 HomeScreen: User confirmed logout");
-          try {
-            console.log("🚪 HomeScreen: Calling logout function");
-            await logout();
-            console.log(
-              "🚪 HomeScreen: Logout successful, navigating to login"
-            );
-            router.replace("/auth/login");
-            console.log("🚪 HomeScreen: Navigation completed");
-          } catch (error) {
-            console.error("🚪 HomeScreen: Logout error:", error);
-            Alert.alert("Error", "Gagal logout: " + String(error));
-          }
-        },
-      },
-    ]);
-  };
-
   const handleDirectLogout = async () => {
-    console.log("🧪 HomeScreen: Direct logout called (bypassing alert)");
+    console.log("🚪 HomeScreen: Direct logout called (bypassing alert)");
     try {
-      console.log("🧪 HomeScreen: Calling logout function directly");
+      console.log("🚪 HomeScreen: Calling logout function directly");
       await logout();
-      console.log("🧪 HomeScreen: Logout successful, navigating to login");
+      console.log("🚪 HomeScreen: Logout successful, navigating to login");
       router.replace("/auth/login");
-      console.log("🧪 HomeScreen: Navigation completed");
+      console.log("🚪 HomeScreen: Navigation completed");
     } catch (error) {
-      console.error("🧪 HomeScreen: Direct logout error:", error);
+      console.error("🚪 HomeScreen: Direct logout error:", error);
       Alert.alert("Error", "Gagal logout: " + String(error));
     }
   };
@@ -117,33 +91,16 @@ export default function HomeScreen() {
             <View className="bg-white bg-opacity-20 p-3 rounded-full mb-2">
               <Ionicons name="business" size={32} color="white" />
             </View>
-            <TouchableOpacity
-              onPress={handleLogout}
-              className="bg-white bg-opacity-20 px-3 py-1 rounded-full"
-            >
-              <Text className="text-white text-xs">Logout</Text>
-            </TouchableOpacity>
 
-            {/* Manual Test Logout Button */}
+            {/* Direct Logout Button */}
             <TouchableOpacity
               onPress={() => {
-                console.log("🧪 Manual Test Logout Button Pressed");
+                console.log("🚪 Direct Logout Button Pressed");
                 handleDirectLogout();
               }}
-              className="bg-red-500 bg-opacity-80 px-3 py-1 rounded-full mt-1"
+              className="bg-red-500 bg-opacity-90 px-4 py-2 rounded-full"
             >
-              <Text className="text-white text-xs">🧪 Direct Logout</Text>
-            </TouchableOpacity>
-            
-            {/* Test Navigation Only */}
-            <TouchableOpacity
-              onPress={() => {
-                console.log("🧪 Testing navigation to login without logout");
-                router.replace("/auth/login");
-              }}
-              className="bg-yellow-500 bg-opacity-80 px-3 py-1 rounded-full mt-1"
-            >
-              <Text className="text-white text-xs">🧪 Nav Test</Text>
+              <Text className="text-white text-xs font-semibold">Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
