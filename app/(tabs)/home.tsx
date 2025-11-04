@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DataGeneratorButton } from "../../components/DataGeneratorButton";
 import { useAuth } from "../../contexts";
 import {
   ProductStorageService,
@@ -596,6 +597,22 @@ export default function HomeScreen() {
           <Text className="text-xl font-bold text-gray-800 mb-4">
             Aksi Cepat
           </Text>
+
+          {/* Data Generator Button - Hanya muncul jika belum ada data */}
+          {profileCount === 0 && productStats.total === 0 && (
+            <DataGeneratorButton
+              onDataGenerated={async () => {
+                // Reload statistics after generating data
+                const stats =
+                  await ProductStorageService.getProductStatistics();
+                setProductStats(stats);
+
+                const profiles = await ProfileStorageService.getAllProfiles();
+                setProfileCount(profiles.length);
+              }}
+            />
+          )}
+
           <View className="flex-row flex-wrap justify-between">
             <TouchableOpacity
               onPress={() => router.push("/profile/create" as any)}
@@ -621,7 +638,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               onPress={() => router.push("/(tabs)/training/" as any)}
-              className="bg-orange-500 rounded-xl p-4 flex-row items-center"
+              className="bg-orange-500 rounded-xl p-4 flex-row items-center mb-3"
               style={{ width: "48%" }}
             >
               <Ionicons name="school" size={20} color="white" />
@@ -632,12 +649,35 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               onPress={() => router.push("/(tabs)/consultation/" as any)}
-              className="bg-teal-500 rounded-xl p-4 flex-row items-center"
+              className="bg-teal-500 rounded-xl p-4 flex-row items-center mb-3"
               style={{ width: "48%" }}
             >
               <Ionicons name="chatbubbles" size={20} color="white" />
               <Text className="text-white font-semibold ml-2 text-xs flex-1">
                 Konsultasi
+              </Text>
+            </TouchableOpacity>
+
+            {/* Development/Debug Tools */}
+            <TouchableOpacity
+              onPress={() => router.push("/sample-data" as any)}
+              className="bg-gray-600 rounded-xl p-4 flex-row items-center"
+              style={{ width: "48%" }}
+            >
+              <Ionicons name="construct" size={20} color="white" />
+              <Text className="text-white font-semibold ml-2 text-xs flex-1">
+                Sample Data
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push("/debug-intro" as any)}
+              className="bg-yellow-600 rounded-xl p-4 flex-row items-center"
+              style={{ width: "48%" }}
+            >
+              <Ionicons name="bug" size={20} color="white" />
+              <Text className="text-white font-semibold ml-2 text-xs flex-1">
+                Debug Mode
               </Text>
             </TouchableOpacity>
           </View>

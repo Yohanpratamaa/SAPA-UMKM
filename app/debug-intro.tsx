@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -23,6 +24,10 @@ export default function DebugIntroScreen() {
     setCountdown(3);
   };
 
+  const goToSampleData = () => {
+    router.push("/sample-data");
+  };
+
   if (currentState === "splash") {
     return (
       <View style={styles.container}>
@@ -34,6 +39,14 @@ export default function DebugIntroScreen() {
           onPress={() => setCurrentState("onboarding")}
         >
           <Text style={styles.buttonText}>Skip to Onboarding</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#10B981" }]}
+          onPress={goToSampleData}
+        >
+          <Text style={[styles.buttonText, { color: "white" }]}>
+            🗃️ Sample Data Manager
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -51,6 +64,9 @@ export default function DebugIntroScreen() {
           onPress={() => setCurrentState("getting-started")}
         >
           <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={goToSampleData}>
+          <Text style={styles.buttonText}>🗃️ Sample Data</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={resetFlow}>
           <Text style={styles.secondaryButtonText}>Reset</Text>
@@ -78,6 +94,9 @@ export default function DebugIntroScreen() {
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={goToSampleData}>
+          <Text style={styles.buttonText}>🗃️ Sample Data</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={resetFlow}>
           <Text style={styles.secondaryButtonText}>Reset</Text>
         </TouchableOpacity>
@@ -93,6 +112,9 @@ export default function DebugIntroScreen() {
       </Text>
       <TouchableOpacity style={styles.button} onPress={resetFlow}>
         <Text style={styles.buttonText}>Restart</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={goToSampleData}>
+        <Text style={styles.buttonText}>🗃️ Sample Data</Text>
       </TouchableOpacity>
     </View>
   );

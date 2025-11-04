@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../../components/ProtectedRoute";
-import { BackButton } from "../../../components/ui";
 import { ProfileStorageService } from "../../../services";
 import { UMKMProfile } from "../../../types";
 
@@ -158,46 +157,110 @@ function ProfileDetailScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-600">Memuat data profil...</Text>
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center px-6">
+          <View
+            className="bg-white rounded-2xl p-8 items-center"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 6,
+            }}
+          >
+            <View className="bg-blue-100 rounded-full p-4 mb-4">
+              <Ionicons name="business" size={40} color="#3B82F6" />
+            </View>
+            <Text className="text-gray-700 font-semibold text-lg mb-2">
+              Memuat profil UMKM...
+            </Text>
+            <Text className="text-gray-500 text-center">
+              Sedang mengambil detail informasi profil usaha
+            </Text>
+          </View>
+        </View>
       </SafeAreaView>
     );
   }
 
   if (!profile) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-600">Profil tidak ditemukan</Text>
-        <BackButton onPress={handleBack} className="mt-4" />
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center px-6">
+          <View
+            className="bg-white rounded-2xl p-8 items-center"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 6,
+            }}
+          >
+            <View className="bg-red-100 rounded-full p-4 mb-4">
+              <Ionicons name="alert-circle" size={40} color="#EF4444" />
+            </View>
+            <Text className="text-gray-700 font-semibold text-lg mb-2">
+              Profil tidak ditemukan
+            </Text>
+            <Text className="text-gray-500 text-center mb-6">
+              Profil UMKM yang Anda cari tidak tersedia atau telah dihapus
+            </Text>
+            <TouchableOpacity
+              onPress={handleBack}
+              className="bg-blue-600 px-6 py-3 rounded-full"
+            >
+              <Text className="text-white font-semibold">Kembali</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-4">
+      {/* Modern Header */}
+      <View
+        className="px-6 pt-4 pb-6"
+        style={{
+          backgroundColor: "#3B82F6",
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+        }}
+      >
         <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center">
-            <BackButton onPress={handleBack} className="mr-4" />
-            <Text className="text-lg font-semibold text-gray-900">
-              Detail Profil UMKM
-            </Text>
+          <View className="flex-row items-center flex-1">
+            <TouchableOpacity
+              onPress={handleBack}
+              className="bg-white bg-opacity-20 p-2 rounded-full mr-4"
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <View className="flex-1">
+              <Text className="text-white text-xl font-bold">
+                Detail Profil UMKM
+              </Text>
+              <Text className="text-blue-100 text-sm">
+                Informasi lengkap profil usaha
+              </Text>
+            </View>
           </View>
 
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center">
             <TouchableOpacity
               onPress={handleEdit}
-              className="bg-blue-600 px-3 py-2 rounded-lg"
+              className="bg-white bg-opacity-20 p-2 rounded-full mr-2"
             >
-              <Ionicons name="pencil-outline" size={16} color="white" />
+              <Ionicons name="pencil" size={20} color="white" />
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleDelete}
-              className="bg-red-600 px-3 py-2 rounded-lg"
+              className="bg-red-500 bg-opacity-90 p-2 rounded-full"
             >
-              <Ionicons name="trash-outline" size={16} color="white" />
+              <Ionicons name="trash" size={20} color="white" />
             </TouchableOpacity>
           </View>
         </View>
