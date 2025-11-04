@@ -75,8 +75,8 @@ export default function HomeScreen() {
       description: "Materi pelatihan dan workshop untuk UMKM",
       icon: "school-outline" as const,
       color: "bg-orange-500",
-      route: "#",
-      status: "Segera Hadir",
+      route: "/(tabs)/training/",
+      status: "Tersedia",
     },
   ];
 
