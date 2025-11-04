@@ -155,7 +155,10 @@ function MarketplaceScreen() {
           item.id
         );
         try {
-          router.push(`/marketplace/${item.id}`);
+          router.push({
+            pathname: "/marketplace/[id]" as any,
+            params: { id: item.id },
+          });
           console.log("Marketplace - Navigation called for detail");
         } catch (error) {
           console.error("Marketplace - Navigation error for detail:", error);
@@ -167,7 +170,10 @@ function MarketplaceScreen() {
           item.id
         );
         try {
-          router.push(`/marketplace/${item.id}/edit`);
+          router.push({
+            pathname: "/marketplace/[id]/edit" as any,
+            params: { id: item.id },
+          });
           console.log("Marketplace - Navigation called for edit");
         } catch (error) {
           console.error("Marketplace - Navigation error for edit:", error);
