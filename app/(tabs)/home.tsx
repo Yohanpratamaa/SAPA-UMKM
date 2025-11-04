@@ -1,14 +1,44 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../contexts";
+import { ProductStorageService, ProfileStorageService } from "../../services";
 
 export default function HomeScreen() {
   const { user, logout } = useAuth();
+  const [productStats, setProductStats] = useState({
+    total: 0,
+    aktif: 0,
+    nonAktif: 0,
+    kategoriStats: {} as { [key: string]: number },
+  });
+  const [profileCount, setProfileCount] = useState(0);
 
   // Debug: Check if logout function is available
   console.log("🔍 HomeScreen: useAuth logout function:", typeof logout);
+
+  // Load statistics
+  useFocusEffect(
+    useCallback(() => {
+      const loadStats = async () => {
+        try {
+          // Load product statistics
+          const stats = await ProductStorageService.getProductStatistics();
+          setProductStats(stats);
+
+          // Load profile count
+          const profiles = await ProfileStorageService.getAllProfiles();
+          setProfileCount(profiles.length);
+        } catch (error) {
+          console.error("Error loading statistics:", error);
+        }
+      };
+
+      loadStats();
+    }, [])
+  );
 
   const features = [
     {
@@ -35,8 +65,8 @@ export default function HomeScreen() {
       description: "Platform jual beli produk UMKM secara online",
       icon: "storefront-outline" as const,
       color: "bg-purple-500",
-      route: "#",
-      status: "Segera Hadir",
+      route: "/(tabs)/marketplace/",
+      status: "Tersedia",
     },
     {
       id: 4,
@@ -144,19 +174,67 @@ export default function HomeScreen() {
         </Text>
         <View className="flex-row justify-between">
           <View className="items-center">
-            <Text className="text-2xl font-bold text-blue-600">1</Text>
+            <Text className="text-2xl font-bold text-blue-600">2</Text>
             <Text className="text-xs text-gray-600">Fitur Aktif</Text>
           </View>
           <View className="items-center">
-            <Text className="text-2xl font-bold text-green-600">0</Text>
+            <Text className="text-2xl font-bold text-green-600">
+              {profileCount}
+            </Text>
             <Text className="text-xs text-gray-600">Profil UMKM</Text>
           </View>
           <View className="items-center">
-            <Text className="text-2xl font-bold text-orange-600">3</Text>
+            <Text className="text-2xl font-bold text-purple-600">
+              {productStats.aktif}
+            </Text>
+            <Text className="text-xs text-gray-600">Produk Aktif</Text>
+          </View>
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-orange-600">2</Text>
             <Text className="text-xs text-gray-600">Fitur Segera</Text>
           </View>
         </View>
       </View>
+
+      {/* Marketplace Quick Stats - Show only if there are products */}
+      {productStats.total > 0 && (
+        <View className="mx-6 mt-4 bg-purple-50 rounded-xl p-4 border border-purple-200">
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center">
+              <Ionicons name="storefront" size={20} color="#7C3AED" />
+              <Text className="text-purple-800 font-semibold ml-2">
+                Marketplace Digital
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)/marketplace/" as any)}
+              className="bg-purple-600 px-3 py-1 rounded-full"
+            >
+              <Text className="text-white text-xs font-medium">Lihat</Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex-row justify-between">
+            <View className="items-center">
+              <Text className="text-lg font-bold text-purple-600">
+                {productStats.total}
+              </Text>
+              <Text className="text-xs text-purple-700">Total Produk</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-lg font-bold text-green-600">
+                {productStats.aktif}
+              </Text>
+              <Text className="text-xs text-purple-700">Aktif</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-lg font-bold text-orange-600">
+                {Object.keys(productStats.kategoriStats).length}
+              </Text>
+              <Text className="text-xs text-purple-700">Kategori</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Features Grid */}
       <View className="px-6 py-6">
