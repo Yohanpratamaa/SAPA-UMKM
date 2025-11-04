@@ -15,8 +15,7 @@ export default function RootLayout() {
           name="profile/create"
           options={{
             presentation: "modal",
-            headerShown: true,
-            title: "Tambah Profil UMKM",
+            headerShown: false,
           }}
         />
       </Stack>

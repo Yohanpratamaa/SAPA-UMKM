@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Alert, ScrollView, Text, View } from "react-native";
+import { Alert, SafeAreaView, ScrollView, Text, View } from "react-native";
 import { UMKMFormData, ValidationErrors } from "../types";
-import { Button, ImageUpload, Input, Select } from "./ui";
+import { BackButton, Button, ImageUpload, Input, Select } from "./ui";
 
 interface UMKMProfileFormProps {
   initialData?: Partial<UMKMFormData>;
   onSubmit: (data: UMKMFormData) => void;
+  onBack?: () => void;
   loading?: boolean;
 }
 
@@ -23,6 +24,7 @@ const jenisUsahaOptions: string[] = [
 export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
   initialData = {},
   onSubmit,
+  onBack,
   loading = false,
 }) => {
   const [formData, setFormData] = useState<UMKMFormData>({
@@ -112,174 +114,198 @@ export const UMKMProfileForm: React.FC<UMKMProfileFormProps> = ({
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 p-4">
-      <View className="bg-white rounded-lg p-6 shadow-sm">
-        <Text className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Profil UMKM
-        </Text>
-
-        {/* Informasi Dasar Usaha */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Informasi Dasar Usaha
-          </Text>
-
-          <Input
-            label="Nama Usaha"
-            value={formData.namaUsaha}
-            onChangeText={(value: string) => updateField("namaUsaha", value)}
-            placeholder="Masukkan nama usaha"
-            error={errors.namaUsaha}
-            required
-          />
-
-          <Select
-            label="Jenis Usaha"
-            value={formData.jenisUsaha}
-            onValueChange={(value: string) => updateField("jenisUsaha", value)}
-            options={jenisUsahaOptions}
-            placeholder="Pilih jenis usaha"
-            error={errors.jenisUsaha}
-            required
-          />
-
-          <Input
-            label="Deskripsi Usaha"
-            value={formData.deskripsiUsaha}
-            onChangeText={(value: string) =>
-              updateField("deskripsiUsaha", value)
-            }
-            placeholder="Deskripsi singkat tentang usaha"
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
-        </View>
-
-        {/* Alamat Usaha */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Alamat Usaha
-          </Text>
-
-          <Input
-            label="Alamat Lengkap"
-            value={formData.alamatLengkap}
-            onChangeText={(value: string) =>
-              updateField("alamatLengkap", value)
-            }
-            placeholder="Jalan, No, RT/RW, Kelurahan"
-            error={errors.alamatLengkap}
-            multiline
-            numberOfLines={2}
-            textAlignVertical="top"
-            required
-          />
-
-          <View className="flex-row space-x-2">
-            <View className="flex-1">
-              <Input
-                label="Kota"
-                value={formData.kota}
-                onChangeText={(value: string) => updateField("kota", value)}
-                placeholder="Nama kota"
-                error={errors.kota}
-                required
-              />
-            </View>
-            <View className="flex-1">
-              <Input
-                label="Kode Pos"
-                value={formData.kodePos}
-                onChangeText={(value: string) => updateField("kodePos", value)}
-                placeholder="12345"
-                keyboardType="numeric"
-                maxLength={5}
-                error={errors.kodePos}
-                required
-              />
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView className="flex-1">
+        {/* Header dengan tombol back */}
+        {onBack && (
+          <View className="bg-white border-b border-gray-200 px-4 py-4">
+            <View className="flex-row items-center">
+              <BackButton onPress={onBack} className="mr-4" />
+              <Text className="text-lg font-semibold text-gray-900">
+                Tambah Profil UMKM
+              </Text>
             </View>
           </View>
+        )}
 
-          <Input
-            label="Provinsi"
-            value={formData.provinsi}
-            onChangeText={(value: string) => updateField("provinsi", value)}
-            placeholder="Nama provinsi"
-            error={errors.provinsi}
-            required
-          />
+        <View className="p-4">
+          <View className="bg-white rounded-lg p-6 shadow-sm">
+            <Text className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              Profil UMKM
+            </Text>
+
+            {/* Informasi Dasar Usaha */}
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-gray-800 mb-4">
+                Informasi Dasar Usaha
+              </Text>
+
+              <Input
+                label="Nama Usaha"
+                value={formData.namaUsaha}
+                onChangeText={(value: string) =>
+                  updateField("namaUsaha", value)
+                }
+                placeholder="Masukkan nama usaha"
+                error={errors.namaUsaha}
+                required
+              />
+
+              <Select
+                label="Jenis Usaha"
+                value={formData.jenisUsaha}
+                onValueChange={(value: string) =>
+                  updateField("jenisUsaha", value)
+                }
+                options={jenisUsahaOptions}
+                placeholder="Pilih jenis usaha"
+                error={errors.jenisUsaha}
+                required
+              />
+
+              <Input
+                label="Deskripsi Usaha"
+                value={formData.deskripsiUsaha}
+                onChangeText={(value: string) =>
+                  updateField("deskripsiUsaha", value)
+                }
+                placeholder="Deskripsi singkat tentang usaha"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Alamat Usaha */}
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-gray-800 mb-4">
+                Alamat Usaha
+              </Text>
+
+              <Input
+                label="Alamat Lengkap"
+                value={formData.alamatLengkap}
+                onChangeText={(value: string) =>
+                  updateField("alamatLengkap", value)
+                }
+                placeholder="Jalan, No, RT/RW, Kelurahan"
+                error={errors.alamatLengkap}
+                multiline
+                numberOfLines={2}
+                textAlignVertical="top"
+                required
+              />
+
+              <View className="flex-row space-x-2">
+                <View className="flex-1">
+                  <Input
+                    label="Kota"
+                    value={formData.kota}
+                    onChangeText={(value: string) => updateField("kota", value)}
+                    placeholder="Nama kota"
+                    error={errors.kota}
+                    required
+                  />
+                </View>
+                <View className="flex-1">
+                  <Input
+                    label="Kode Pos"
+                    value={formData.kodePos}
+                    onChangeText={(value: string) =>
+                      updateField("kodePos", value)
+                    }
+                    placeholder="12345"
+                    keyboardType="numeric"
+                    maxLength={5}
+                    error={errors.kodePos}
+                    required
+                  />
+                </View>
+              </View>
+
+              <Input
+                label="Provinsi"
+                value={formData.provinsi}
+                onChangeText={(value: string) => updateField("provinsi", value)}
+                placeholder="Nama provinsi"
+                error={errors.provinsi}
+                required
+              />
+            </View>
+
+            {/* Foto/Logo Usaha */}
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-gray-800 mb-4">
+                Foto/Logo Usaha
+              </Text>
+
+              <ImageUpload
+                label="Logo atau Foto Usaha"
+                imageUri={formData.fotoLogo}
+                onImageSelected={(uri: string) => updateField("fotoLogo", uri)}
+                placeholder="Upload logo atau foto usaha"
+                aspectRatio={[1, 1]}
+              />
+            </View>
+
+            {/* Data Legal & Kontak */}
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-gray-800 mb-4">
+                Data Legal & Kontak
+              </Text>
+
+              <Input
+                label="NIB (Nomor Induk Berusaha)"
+                value={formData.nib}
+                onChangeText={(value: string) => updateField("nib", value)}
+                placeholder="1234567890123"
+                keyboardType="numeric"
+                maxLength={13}
+                error={errors.nib}
+                required
+              />
+
+              <Input
+                label="Nomor Kontak"
+                value={formData.nomorKontak}
+                onChangeText={(value: string) =>
+                  updateField("nomorKontak", value)
+                }
+                placeholder="+62 812 3456 7890"
+                keyboardType="phone-pad"
+                error={errors.nomorKontak}
+                required
+              />
+
+              <Input
+                label="Email"
+                value={formData.email}
+                onChangeText={(value: string) => updateField("email", value)}
+                placeholder="email@domain.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email}
+              />
+
+              <Input
+                label="Website"
+                value={formData.website}
+                onChangeText={(value: string) => updateField("website", value)}
+                placeholder="https://website-usaha.com"
+                keyboardType="url"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <Button
+              title="Simpan Profil"
+              onPress={handleSubmit}
+              loading={loading}
+              className="mt-4"
+            />
+          </View>
         </View>
-
-        {/* Foto/Logo Usaha */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Foto/Logo Usaha
-          </Text>
-
-          <ImageUpload
-            label="Logo atau Foto Usaha"
-            imageUri={formData.fotoLogo}
-            onImageSelected={(uri: string) => updateField("fotoLogo", uri)}
-            placeholder="Upload logo atau foto usaha"
-            aspectRatio={[1, 1]}
-          />
-        </View>
-
-        {/* Data Legal & Kontak */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Data Legal & Kontak
-          </Text>
-
-          <Input
-            label="NIB (Nomor Induk Berusaha)"
-            value={formData.nib}
-            onChangeText={(value: string) => updateField("nib", value)}
-            placeholder="1234567890123"
-            keyboardType="numeric"
-            maxLength={13}
-            error={errors.nib}
-            required
-          />
-
-          <Input
-            label="Nomor Kontak"
-            value={formData.nomorKontak}
-            onChangeText={(value: string) => updateField("nomorKontak", value)}
-            placeholder="+62 812 3456 7890"
-            keyboardType="phone-pad"
-            error={errors.nomorKontak}
-            required
-          />
-
-          <Input
-            label="Email"
-            value={formData.email}
-            onChangeText={(value: string) => updateField("email", value)}
-            placeholder="email@domain.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-          />
-
-          <Input
-            label="Website"
-            value={formData.website}
-            onChangeText={(value: string) => updateField("website", value)}
-            placeholder="https://website-usaha.com"
-            keyboardType="url"
-            autoCapitalize="none"
-          />
-        </View>
-
-        <Button
-          title="Simpan Profil"
-          onPress={handleSubmit}
-          loading={loading}
-          className="mt-4"
-        />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
