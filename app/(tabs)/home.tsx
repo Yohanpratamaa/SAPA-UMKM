@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DataGeneratorButton } from "../../components/DataGeneratorButton";
+import { DataGeneratorButton, EditProfileModal } from "../../components";
 import { useAuth } from "../../contexts";
 import {
   ProductStorageService,
@@ -26,6 +26,7 @@ export default function HomeScreen() {
     completedModules: 0,
     availableCategories: 0,
   });
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Debug: Check if logout function is available
   console.log("🔍 HomeScreen: useAuth logout function:", typeof logout);
@@ -180,9 +181,20 @@ export default function HomeScreen() {
         {/* User Info Card */}
         {user && (
           <View className="mx-6 -mt-6 bg-white rounded-xl p-4 shadow-sm">
-            <Text className="text-gray-800 font-semibold mb-3">
-              Informasi Akun
-            </Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-gray-800 font-semibold">
+                Informasi Akun
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowEditProfile(true)}
+                className="bg-blue-600 px-3 py-1 rounded-full flex-row items-center"
+              >
+                <Ionicons name="pencil" size={12} color="white" />
+                <Text className="text-white text-xs font-medium ml-1">
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </View>
             <View className="space-y-2">
               <View className="flex-row items-center">
                 <Ionicons name="person-outline" size={16} color="#6B7280" />
@@ -731,6 +743,16 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        visible={showEditProfile}
+        onClose={() => setShowEditProfile(false)}
+        onProfileUpdated={() => {
+          // Refresh data setelah profile diupdate
+          console.log("Profile updated, refreshing data...");
+        }}
+      />
     </SafeAreaView>
   );
 }
