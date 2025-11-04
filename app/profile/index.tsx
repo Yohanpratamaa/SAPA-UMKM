@@ -13,7 +13,8 @@ import {
   View,
 } from "react-native";
 import { ProfileCard } from "../../components/ProfileCard";
-import { ProfileStorageService } from "../../services";
+import { useAuth } from "../../contexts";
+import { AuthService, ProfileStorageService } from "../../services";
 import { UMKMProfile } from "../../types";
 
 export default function ProfileListScreen() {
@@ -22,6 +23,7 @@ export default function ProfileListScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { user, logout } = useAuth();
 
   const loadProfiles = async () => {
     try {
@@ -91,11 +93,54 @@ export default function ProfileListScreen() {
     );
   };
 
+  const handleLogout = async () => {
+    Alert.alert("Konfirmasi Logout", "Apakah Anda yakin ingin logout?", [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          router.replace("/intro");
+        },
+      },
+    ]);
+  };
+
+  const handleDebugAuth = async () => {
+    try {
+      const debugInfo = await AuthService.getDebugInfo();
+      Alert.alert(
+        "Debug Auth Info",
+        `Current User: ${debugInfo.currentUser?.fullName || "None"}\n` +
+          `Role: ${debugInfo.currentUser?.role || "None"}\n` +
+          `Email: ${debugInfo.currentUser?.email || "None"}\n` +
+          `Token: ${debugInfo.token ? "Present" : "None"}\n` +
+          `Remember Me: ${debugInfo.rememberMe}\n` +
+          `Total Users: ${debugInfo.allUsers.length}`,
+        [
+          {
+            text: "Clear All Data",
+            style: "destructive",
+            onPress: async () => {
+              await AuthService.clearAllData();
+              Alert.alert("Success", "All auth data cleared");
+              router.replace("/intro");
+            },
+          },
+          { text: "OK" },
+        ]
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to get debug info");
+    }
+  };
+
   const renderProfile = ({ item }: { item: UMKMProfile }) => (
     <ProfileCard
       profile={item}
-      onPress={() => router.push(`/profile/${item.id}`)}
-      onEdit={() => router.push(`/profile/edit/${item.id}`)}
+      onPress={() => Alert.alert("Info", `Profil: ${item.namaUsaha}`)}
+      onEdit={() => Alert.alert("Info", "Fitur edit akan segera tersedia")}
       onDelete={() => handleDeleteProfile(item)}
     />
   );
@@ -139,13 +184,33 @@ export default function ProfileListScreen() {
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-2xl font-bold text-gray-900">Profil UMKM</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/profile/create")}
-            className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
-          >
-            <Ionicons name="add" size={20} color="white" />
-            <Text className="text-white font-semibold ml-1">Tambah</Text>
-          </TouchableOpacity>
+          <View className="flex-row items-center space-x-2">
+            <TouchableOpacity
+              onPress={handleDebugAuth}
+              className="bg-gray-600 px-3 py-2 rounded-lg flex-row items-center mr-2"
+            >
+              <Ionicons name="bug" size={16} color="white" />
+              <Text className="text-white font-semibold ml-1 text-sm">
+                Debug
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="bg-red-600 px-3 py-2 rounded-lg flex-row items-center mr-2"
+            >
+              <Ionicons name="log-out" size={16} color="white" />
+              <Text className="text-white font-semibold ml-1 text-sm">
+                Logout
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/profile/create")}
+              className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
+            >
+              <Ionicons name="add" size={20} color="white" />
+              <Text className="text-white font-semibold ml-1">Tambah</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Search Bar */}

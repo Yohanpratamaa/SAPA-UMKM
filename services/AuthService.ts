@@ -16,6 +16,23 @@ const STORAGE_KEYS = {
 };
 
 export class AuthService {
+  // Hash password sederhana (untuk demo - gunakan bcrypt di production)
+  static hashPassword(password: string): string {
+    // Simple hash untuk demo - JANGAN gunakan di production
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash.toString();
+  }
+
+  // Verify password
+  static verifyPassword(password: string, hashedPassword: string): boolean {
+    return this.hashPassword(password) === hashedPassword;
+  }
+
   // Simulasi database users lokal
   static async getAllUsers(): Promise<User[]> {
     try {
@@ -102,6 +119,7 @@ export class AuthService {
         role: formData.role,
         isEmailVerified: false, // Dalam implementasi nyata, perlu email verification
         createdAt: new Date(),
+        passwordHash: this.hashPassword(formData.password), // Simpan hash password
       };
 
       // Simpan user ke database lokal
@@ -127,8 +145,12 @@ export class AuthService {
 
   static async login(formData: LoginFormData): Promise<AuthResponse> {
     try {
+      console.log("AuthService: login called with:", formData);
+
       // Validasi data
       const validationErrors = this.validateLoginData(formData);
+      console.log("AuthService: validation errors:", validationErrors);
+
       if (Object.keys(validationErrors).length > 0) {
         return {
           success: false,
@@ -138,12 +160,16 @@ export class AuthService {
       }
 
       // Cari user berdasarkan email atau username
+      console.log("AuthService: Getting all users...");
       const users = await this.getAllUsers();
+      console.log("AuthService: Found users:", users.length);
+
       const user = users.find(
         (u) =>
           u.email.toLowerCase() === formData.emailOrUsername.toLowerCase() ||
           u.username.toLowerCase() === formData.emailOrUsername.toLowerCase()
       );
+      console.log("AuthService: Found user:", user ? user.email : "not found");
 
       if (!user) {
         return {
@@ -153,9 +179,13 @@ export class AuthService {
         };
       }
 
-      // Dalam implementasi nyata, password harus di-hash dan diverifikasi
-      // Untuk demo ini, kita anggap password valid jika length > 6
-      if (formData.password.length < 6) {
+      // Verifikasi password
+      console.log("AuthService: Verifying password...");
+      if (
+        !user.passwordHash ||
+        !this.verifyPassword(formData.password, user.passwordHash)
+      ) {
+        console.log("AuthService: Password verification failed");
         return {
           success: false,
           message: "Email/Username atau password salah",
@@ -163,6 +193,7 @@ export class AuthService {
         };
       }
 
+      console.log("AuthService: Password verified, updating user...");
       // Update last login
       const updatedUser = {
         ...user,
@@ -172,12 +203,14 @@ export class AuthService {
 
       // Generate token
       const token = this.generateToken(updatedUser);
+      console.log("AuthService: Generated token");
 
       // Simpan session jika remember me
       if (formData.rememberMe) {
         await AsyncStorage.setItem(STORAGE_KEYS.REMEMBER_ME, "true");
       }
 
+      console.log("AuthService: Login successful");
       return {
         success: true,
         user: updatedUser,
@@ -185,7 +218,7 @@ export class AuthService {
         message: "Login berhasil",
       };
     } catch (error) {
-      console.error("Error during login:", error);
+      console.error("AuthService: Error during login:", error);
       return {
         success: false,
         message: "Terjadi kesalahan saat login",
@@ -193,15 +226,51 @@ export class AuthService {
     }
   }
 
+  static async checkAuthSession(): Promise<AuthResponse> {
+    try {
+      const user = await this.getCurrentUser();
+      const token = await this.getToken();
+      const isRememberMe = await this.isRememberMeEnabled();
+
+      if (user && token && isRememberMe) {
+        const isValidToken = await this.validateToken(token);
+        if (isValidToken) {
+          return {
+            success: true,
+            user,
+            token,
+            message: "Session valid",
+          };
+        }
+      }
+
+      // Session tidak valid, clear data
+      await this.logout();
+      return {
+        success: false,
+        message: "Session expired",
+      };
+    } catch (error) {
+      console.error("Error checking auth session:", error);
+      return {
+        success: false,
+        message: "Error checking session",
+      };
+    }
+  }
+
   static async logout(): Promise<void> {
     try {
+      console.log("🚪 AuthService.logout: Starting logout process");
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.USER,
         STORAGE_KEYS.TOKEN,
         STORAGE_KEYS.REMEMBER_ME,
       ]);
+      console.log("🚪 AuthService.logout: Storage cleared successfully");
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error("🚪 AuthService.logout: Error during logout:", error);
+      throw error;
     }
   }
 
@@ -227,9 +296,18 @@ export class AuthService {
 
   static async saveCurrentUser(user: User): Promise<void> {
     try {
+      console.log(
+        "AuthService.saveCurrentUser: Starting to save user:",
+        user.id
+      );
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      console.log("AuthService.saveCurrentUser: User saved successfully");
     } catch (error) {
-      console.error("Error saving current user:", error);
+      console.error(
+        "AuthService.saveCurrentUser: Error saving current user:",
+        error
+      );
+      throw error;
     }
   }
 
@@ -244,9 +322,15 @@ export class AuthService {
 
   static async saveToken(token: string): Promise<void> {
     try {
+      console.log(
+        "AuthService.saveToken: Starting to save token:",
+        token.substring(0, 20) + "..."
+      );
       await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
+      console.log("AuthService.saveToken: Token saved successfully");
     } catch (error) {
-      console.error("Error saving token:", error);
+      console.error("AuthService.saveToken: Error saving token:", error);
+      throw error;
     }
   }
 
@@ -359,5 +443,74 @@ export class AuthService {
       console.error("Error validating token:", error);
       return false;
     }
+  }
+
+  // Demo/Debug functions
+  static async createDemoUsers(): Promise<void> {
+    try {
+      const users = await this.getAllUsers();
+      if (users.length === 0) {
+        // Create demo users
+        const demoUsers: User[] = [
+          {
+            id: "demo-umkm-1",
+            email: "demo@umkm.com",
+            username: "demo_umkm",
+            fullName: "Demo UMKM User",
+            phoneNumber: "+628123456789",
+            role: "umkm",
+            isEmailVerified: true,
+            createdAt: new Date(),
+            passwordHash: this.hashPassword("demo123"),
+          },
+          {
+            id: "demo-pendamping-1",
+            email: "pendamping@demo.com",
+            username: "demo_pendamping",
+            fullName: "Demo Pendamping User",
+            phoneNumber: "+628987654321",
+            role: "pendamping",
+            isEmailVerified: true,
+            createdAt: new Date(),
+            passwordHash: this.hashPassword("demo123"),
+          },
+        ];
+
+        for (const user of demoUsers) {
+          await this.saveUser(user);
+        }
+        console.log("Demo users created successfully");
+      }
+    } catch (error) {
+      console.error("Error creating demo users:", error);
+    }
+  }
+
+  static async clearAllData(): Promise<void> {
+    try {
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.USER,
+        STORAGE_KEYS.TOKEN,
+        STORAGE_KEYS.USERS_DB,
+        STORAGE_KEYS.REMEMBER_ME,
+      ]);
+      console.log("All auth data cleared");
+    } catch (error) {
+      console.error("Error clearing auth data:", error);
+    }
+  }
+
+  static async getDebugInfo(): Promise<{
+    currentUser: User | null;
+    token: string | null;
+    allUsers: User[];
+    rememberMe: boolean;
+  }> {
+    return {
+      currentUser: await this.getCurrentUser(),
+      token: await this.getToken(),
+      allUsers: await this.getAllUsers(),
+      rememberMe: await this.isRememberMeEnabled(),
+    };
   }
 }

@@ -9,6 +9,7 @@ export interface User {
   isEmailVerified: boolean;
   createdAt: Date;
   lastLoginAt?: Date;
+  passwordHash?: string; // Hash password untuk keamanan
 }
 
 export interface LoginFormData {

@@ -6,15 +6,11 @@ import React, {
   useState,
 } from "react";
 import { AuthService } from "../services";
-import { AuthState } from "../types";
+import { AuthState, LoginFormData, RegisterFormData } from "../types";
 
 interface AuthContextType extends AuthState {
-  login: (
-    email: string,
-    password: string,
-    rememberMe?: boolean
-  ) => Promise<boolean>;
-  register: (userData: any) => Promise<boolean>;
+  login: (formData: LoginFormData) => Promise<boolean>;
+  register: (userData: RegisterFormData) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -38,6 +34,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuthStatus = async () => {
       try {
         setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+        // Create demo users if none exist
+        await AuthService.createDemoUsers();
 
         const [user, token] = await Promise.all([
           AuthService.getCurrentUser(),
@@ -81,17 +80,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (
-    emailOrUsername: string,
-    password: string,
-    rememberMe?: boolean
-  ): Promise<boolean> => {
+  const login = async (formData: LoginFormData): Promise<boolean> => {
     try {
-      const response = await AuthService.login({
-        emailOrUsername,
-        password,
-        rememberMe,
-      });
+      console.log("AuthContext: login called with:", formData);
+      const response = await AuthService.login(formData);
+      console.log("AuthContext: AuthService response:", response);
 
       if (response.success && response.user && response.token) {
         await AuthService.saveCurrentUser(response.user);
@@ -104,19 +97,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           token: response.token,
         });
 
+        console.log("AuthContext: login successful");
         return true;
       }
 
+      console.log("AuthContext: login failed:", response.message);
       return false;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("AuthContext: Login error:", error);
       return false;
     }
   };
 
-  const register = async (userData: any): Promise<boolean> => {
+  const register = async (userData: RegisterFormData): Promise<boolean> => {
     try {
+      console.log("AuthContext: register called with:", userData);
       const response = await AuthService.register(userData);
+      console.log("AuthContext: register response:", response);
 
       if (response.success && response.user && response.token) {
         await AuthService.saveCurrentUser(response.user);
@@ -129,27 +126,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           token: response.token,
         });
 
+        console.log("AuthContext: register successful");
         return true;
       }
 
+      console.log("AuthContext: register failed:", response.message);
       return false;
     } catch (error) {
-      console.error("Register error:", error);
+      console.error("AuthContext: Register error:", error);
       return false;
     }
   };
 
   const logout = async (): Promise<void> => {
     try {
+      console.log("🚪 AuthContext.logout: Starting logout process");
       await AuthService.logout();
+      console.log("🚪 AuthContext.logout: AuthService.logout completed");
+
       setAuthState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         token: undefined,
       });
+      console.log("🚪 AuthContext.logout: Auth state cleared");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("🚪 AuthContext.logout: Logout error:", error);
+      throw error;
     }
   };
 

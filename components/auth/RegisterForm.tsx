@@ -95,9 +95,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   const handleSubmit = () => {
+    console.log("RegisterForm: handleSubmit called");
+    console.log("RegisterForm: formData:", formData);
+    console.log("RegisterForm: Starting validation");
+
     if (validateForm()) {
+      console.log("RegisterForm: Validation passed, calling onSubmit");
       onSubmit(formData);
     } else {
+      console.log("RegisterForm: Validation failed, errors:", errors);
       Alert.alert("Peringatan", "Mohon lengkapi semua field yang wajib diisi");
     }
   };
@@ -417,6 +423,31 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                   </>
                 )}
               </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Manual Test Register Button */}
+            <TouchableOpacity
+              style={styles.testButton}
+              onPress={() => {
+                console.log("Manual Test Register Button Pressed");
+                const testData: RegisterFormData = {
+                  email: "test@register.com",
+                  username: "testregister",
+                  fullName: "Test Register User",
+                  phoneNumber: "+6281234567890",
+                  password: "test123",
+                  confirmPassword: "test123",
+                  role: "umkm",
+                  agreeToTerms: true,
+                };
+                console.log(
+                  "Manual Test: Calling onSubmit with test data:",
+                  testData
+                );
+                onSubmit(testData);
+              }}
+            >
+              <Text style={styles.testButtonText}>🧪 Test Register</Text>
             </TouchableOpacity>
 
             {/* Sign In Link */}
@@ -739,5 +770,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#4F46E5",
     fontWeight: "600",
+  },
+  testButton: {
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  testButtonText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
   },
 });

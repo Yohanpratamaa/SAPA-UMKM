@@ -15,11 +15,17 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (formData: RegisterFormData) => {
+    console.log("RegisterScreen: handleRegister called with:", formData);
     setLoading(true);
     try {
+      console.log("RegisterScreen: Calling AuthService.register");
       const response = await AuthService.register(formData);
+      console.log("RegisterScreen: AuthService response:", response);
 
       if (response.success && response.user && response.token) {
+        console.log(
+          "RegisterScreen: Registration successful, saving user data"
+        );
         // Simpan user dan token
         await AuthService.saveCurrentUser(response.user);
         await AuthService.saveToken(response.token);
@@ -28,13 +34,15 @@ export default function RegisterScreen() {
           {
             text: "OK",
             onPress: () => {
+              console.log("RegisterScreen: Navigating to home");
               // Navigate ke halaman utama
-              router.replace("/(tabs)");
+              router.replace("/(tabs)/home");
             },
           },
         ]);
       } else {
         // Tampilkan error
+        console.log("RegisterScreen: Registration failed:", response.message);
         let errorMessage =
           response.message || "Terjadi kesalahan saat mendaftar";
 
@@ -48,7 +56,7 @@ export default function RegisterScreen() {
         Alert.alert("Pendaftaran Gagal", errorMessage);
       }
     } catch (error) {
-      console.error("Register error:", error);
+      console.error("RegisterScreen: Register error:", error);
       Alert.alert("Error", "Terjadi kesalahan yang tidak terduga");
     } finally {
       setLoading(false);

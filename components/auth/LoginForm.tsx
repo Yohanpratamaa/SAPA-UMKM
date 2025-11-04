@@ -19,6 +19,8 @@ interface LoginFormProps {
   loading?: boolean;
   onForgotPassword?: () => void;
   onSignUp?: () => void;
+  onDemoLogin?: () => void;
+  onDebugAction?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -26,6 +28,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   loading = false,
   onForgotPassword,
   onSignUp,
+  onDemoLogin,
+  onDebugAction,
 }) => {
   const [formData, setFormData] = useState<LoginFormData>({
     emailOrUsername: "",
@@ -55,9 +59,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   const handleSubmit = () => {
+    console.log("LoginForm: handleSubmit called");
+    console.log("FormData:", formData);
+
     if (validateForm()) {
+      console.log("LoginForm: Validation passed, calling onSubmit");
       onSubmit(formData);
     } else {
+      console.log("LoginForm: Validation failed", errors);
       Alert.alert("Peringatan", "Mohon lengkapi semua field yang wajib diisi");
     }
   };
@@ -249,6 +258,40 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </TouchableOpacity>
             </View>
           )}
+
+          {/* Demo Login Button */}
+          {onDemoLogin && (
+            <TouchableOpacity style={styles.demoButton} onPress={onDemoLogin}>
+              <Text style={styles.demoButtonText}>🎭 Coba Demo Login</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Debug Button */}
+          {onDebugAction && (
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={onDebugAction}
+            >
+              <Text style={styles.debugButtonText}>🔧 Debug & Test Auth</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Manual Test Login */}
+          <TouchableOpacity
+            style={styles.manualTestButton}
+            onPress={() => {
+              console.log("Manual test button pressed");
+              const testData: LoginFormData = {
+                emailOrUsername: "demo@umkm.com",
+                password: "demo123",
+                rememberMe: true,
+              };
+              console.log("Calling onSubmit with test data:", testData);
+              onSubmit(testData);
+            }}
+          >
+            <Text style={styles.manualTestButtonText}>🧪 Quick Test Login</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -493,6 +536,51 @@ const styles = StyleSheet.create({
   signUpLink: {
     fontSize: 14,
     color: "#4F46E5",
+    fontWeight: "600",
+  },
+  demoButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  demoButtonText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.9)",
+    fontWeight: "600",
+  },
+  debugButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  debugButtonText: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.7)",
+    fontWeight: "500",
+  },
+  manualTestButton: {
+    backgroundColor: "rgba(0, 255, 0, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 0, 0.3)",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  manualTestButtonText: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
     fontWeight: "600",
   },
 });
