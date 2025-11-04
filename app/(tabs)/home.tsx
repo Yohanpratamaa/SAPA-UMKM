@@ -116,7 +116,6 @@ export default function HomeScreen() {
         action: "Mulai Belajar",
       },
     },
-
   ];
 
   const handleFeaturePress = (route: string, status: string) => {
@@ -321,7 +320,11 @@ export default function HomeScreen() {
         <View className="mx-6 mt-4 bg-teal-50 rounded-xl p-4 border border-teal-200">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
-              <Ionicons name="chatbubble-ellipses-outline" size={20} color="#0F766E" />
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={20}
+                color="#0F766E"
+              />
               <Text className="text-teal-800 font-semibold ml-2">
                 Konsultasi Digital
               </Text>
