@@ -1,9 +1,12 @@
 export * from "./auth";
+export { ChatBubble, MentorBubble, UserBubble } from "./ChatBubble";
 export { GettingStartedScreen } from "./GettingStartedScreen";
 export { OnboardingScreen } from "./OnboardingScreen";
 export { ProfileCard } from "./ProfileCard";
 export { ProtectedRoute } from "./ProtectedRoute";
+export { CategoryFilter, QuestionButton } from "./QuestionButton";
 export { SplashScreen } from "./SplashScreen";
 export { TrainingCard } from "./TrainingCard";
 export { TrainingForm } from "./TrainingForm";
+export * from "./ui";
 export { UMKMProfileForm } from "./UMKMProfileForm";

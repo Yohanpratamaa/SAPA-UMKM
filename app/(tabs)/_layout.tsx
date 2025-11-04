@@ -45,6 +45,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="consultation"
+        options={{
+          title: "Konsultasi",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profil UMKM",
