@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Alert, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { UMKMFormData, ValidationErrors } from "../types";
 import { BackButton, Button, ImageUpload, Input, Select } from "./ui";
 

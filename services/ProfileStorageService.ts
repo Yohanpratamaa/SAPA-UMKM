@@ -42,8 +42,18 @@ export class ProfileStorageService {
 
   static async getProfileById(id: string): Promise<UMKMProfile | null> {
     try {
+      console.log("ProfileStorageService - Getting profile by ID:", id);
       const profiles = await this.getAllProfiles();
-      return profiles.find((p) => p.id === id) || null;
+      console.log(
+        "ProfileStorageService - All profiles:",
+        profiles.map((p) => ({ id: p.id, namaUsaha: p.namaUsaha }))
+      );
+      const profile = profiles.find((p) => p.id === id) || null;
+      console.log(
+        "ProfileStorageService - Found profile:",
+        profile ? { id: profile.id, namaUsaha: profile.namaUsaha } : null
+      );
+      return profile;
     } catch (error) {
       console.error("Error getting profile by ID:", error);
       return null;

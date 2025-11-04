@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, SafeAreaView, Text } from "react-native";
+import { Alert, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../../components/ProtectedRoute";
 import { UMKMProfileForm } from "../../../components/UMKMProfileForm";
 import { ProfileStorageService } from "../../../services";
@@ -13,9 +14,11 @@ function EditProfileScreen() {
   const [profileLoading, setProfileLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
-    console.log("Edit (dynamic) - ID received:", id);
+    // Handle both string and array cases from router params
+    const profileId = Array.isArray(id) ? id[0] : id;
+    console.log("Edit (dynamic) - ID received:", profileId);
 
-    if (!id) {
+    if (!profileId || profileId === undefined) {
       console.log("Edit (dynamic) - No ID found");
       Alert.alert("Error", "ID profil tidak ditemukan");
       router.back();
@@ -24,8 +27,8 @@ function EditProfileScreen() {
 
     try {
       setProfileLoading(true);
-      console.log("Edit (dynamic) - Loading profile with ID:", id);
-      const profile = await ProfileStorageService.getProfileById(id);
+      console.log("Edit (dynamic) - Loading profile with ID:", profileId);
+      const profile = await ProfileStorageService.getProfileById(profileId);
       console.log("Edit (dynamic) - Profile loaded:", profile);
 
       if (!profile) {
@@ -69,12 +72,16 @@ function EditProfileScreen() {
   };
 
   const handleSubmit = async (formData: UMKMFormData) => {
-    if (!id) return;
+    // Handle both string and array cases from router params
+    const profileId = Array.isArray(id) ? id[0] : id;
+    if (!profileId) return;
 
     setLoading(true);
     try {
       // Get existing profile to preserve metadata
-      const existingProfile = await ProfileStorageService.getProfileById(id);
+      const existingProfile = await ProfileStorageService.getProfileById(
+        profileId
+      );
 
       if (!existingProfile) {
         Alert.alert("Error", "Profil tidak ditemukan");

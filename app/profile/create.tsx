@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, BackHandler, SafeAreaView } from "react-native";
+import { Alert, BackHandler } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
 import { UMKMProfileForm } from "../../components/UMKMProfileForm";
 import { ProfileStorageService } from "../../services";

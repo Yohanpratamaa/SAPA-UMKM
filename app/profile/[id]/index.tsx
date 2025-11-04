@@ -5,12 +5,12 @@ import {
   Alert,
   Image,
   Linking,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../../components/ProtectedRoute";
 import { BackButton } from "../../../components/ui";
 import { ProfileStorageService } from "../../../services";
@@ -22,9 +22,11 @@ function ProfileDetailScreen() {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
-    console.log("Detail (dynamic) - ID received:", id);
+    // Handle both string and array cases from router params
+    const profileId = Array.isArray(id) ? id[0] : id;
+    console.log("Detail (dynamic) - ID received:", profileId);
 
-    if (!id) {
+    if (!profileId || profileId === undefined) {
       console.log("Detail (dynamic) - No ID found");
       Alert.alert("Error", "ID profil tidak ditemukan");
       router.back();
@@ -33,8 +35,8 @@ function ProfileDetailScreen() {
 
     try {
       setLoading(true);
-      console.log("Detail (dynamic) - Loading profile with ID:", id);
-      const profileData = await ProfileStorageService.getProfileById(id);
+      console.log("Detail (dynamic) - Loading profile with ID:", profileId);
+      const profileData = await ProfileStorageService.getProfileById(profileId);
       console.log("Detail (dynamic) - Profile loaded:", profileData);
 
       if (!profileData) {
@@ -64,9 +66,11 @@ function ProfileDetailScreen() {
   };
 
   const handleEdit = () => {
+    // Handle both string and array cases from router params
+    const profileId = Array.isArray(id) ? id[0] : id;
     router.push({
       pathname: "/profile/[id]/edit",
-      params: { id: id },
+      params: { id: profileId },
     });
   };
 
