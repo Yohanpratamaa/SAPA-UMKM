@@ -51,8 +51,9 @@ export function GettingStartedScreen({
 
           <View style={styles.descriptionContainer}>
             <Text style={styles.description}>
-              Mulai perjalanan digital UMKM Anda bersama platform yang dirancang
-              khusus untuk mendukung pertumbuhan usaha Indonesia.
+              Platform lengkap untuk mengelola profil UMKM, mengakses pelatihan
+              bisnis, menampilkan katalog produk, dan mendapatkan konsultasi
+              ahli.
             </Text>
           </View>
         </View>
@@ -73,23 +74,27 @@ export function GettingStartedScreen({
           <View style={styles.featuresContainer}>
             <View style={styles.featureItem}>
               <Ionicons
-                name="shield-checkmark"
+                name="business"
                 size={16}
                 color="rgba(255,255,255,0.8)"
               />
-              <Text style={styles.featureText}>Aman & Terpercaya</Text>
+              <Text style={styles.featureText}>Profil UMKM</Text>
             </View>
             <View style={styles.featureItem}>
-              <Ionicons name="people" size={16} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.featureText}>Komunitas UMKM</Text>
+              <Ionicons name="school" size={16} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.featureText}>Pelatihan</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <Ionicons name="grid" size={16} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.featureText}>Katalog Produk</Text>
             </View>
             <View style={styles.featureItem}>
               <Ionicons
-                name="trending-up"
+                name="help-circle"
                 size={16}
                 color="rgba(255,255,255,0.8)"
               />
-              <Text style={styles.featureText}>Analisis Bisnis</Text>
+              <Text style={styles.featureText}>Konsultasi</Text>
             </View>
           </View>
         </View>
@@ -255,12 +260,14 @@ const styles = StyleSheet.create({
   },
   featuresContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     marginTop: 16,
+    paddingHorizontal: 8,
   },
   featureItem: {
     alignItems: "center",
     flex: 1,
+    paddingHorizontal: 4,
   },
   featureText: {
     color: "rgba(255, 255, 255, 0.8)",

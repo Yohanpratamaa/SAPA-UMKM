@@ -139,8 +139,9 @@ export function GettingStartedScreen({
             Siap Memulai Perjalanan Digital Anda?
           </Text>
           <Text className="text-blue-100 text-base text-center leading-6 opacity-90">
-            Bergabunglah dengan ribuan UMKM lainnya yang telah merasakan manfaat
-            teknologi digital untuk mengembangkan usaha mereka.
+            Bergabunglah dengan platform lengkap untuk mengelola profil UMKM,
+            mengakses pelatihan, menampilkan katalog produk, dan mendapatkan
+            konsultasi ahli.
           </Text>
         </View>
 
@@ -148,28 +149,37 @@ export function GettingStartedScreen({
         <View className="w-full mb-12">
           <View className="flex-row items-center mb-4 px-4">
             <View className="bg-white bg-opacity-20 rounded-full p-2 mr-4">
-              <Ionicons name="checkmark" size={16} color="white" />
+              <Ionicons name="business" size={16} color="white" />
             </View>
             <Text className="text-white text-base flex-1">
-              Kelola profil UMKM dengan mudah
+              Manajemen Profil UMKM yang terintegrasi
             </Text>
           </View>
 
           <View className="flex-row items-center mb-4 px-4">
             <View className="bg-white bg-opacity-20 rounded-full p-2 mr-4">
-              <Ionicons name="checkmark" size={16} color="white" />
+              <Ionicons name="school" size={16} color="white" />
             </View>
             <Text className="text-white text-base flex-1">
-              Akses bantuan dan pendampingan profesional
+              Pelatihan dan Edukasi UMKM berkualitas
+            </Text>
+          </View>
+
+          <View className="flex-row items-center mb-4 px-4">
+            <View className="bg-white bg-opacity-20 rounded-full p-2 mr-4">
+              <Ionicons name="grid" size={16} color="white" />
+            </View>
+            <Text className="text-white text-base flex-1">
+              Katalog Produk UMKM yang menarik
             </Text>
           </View>
 
           <View className="flex-row items-center px-4">
             <View className="bg-white bg-opacity-20 rounded-full p-2 mr-4">
-              <Ionicons name="checkmark" size={16} color="white" />
+              <Ionicons name="help-circle" size={16} color="white" />
             </View>
             <Text className="text-white text-base flex-1">
-              Platform marketplace terintegrasi
+              Konsultasi FAQ UMKM dengan para ahli
             </Text>
           </View>
         </View>

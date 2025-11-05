@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { RegisterFormData, RegisterValidationErrors, User } from "../../types";
+import { RegisterFormData, RegisterValidationErrors } from "../../types";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,8 +20,6 @@ interface RegisterFormProps {
   loading?: boolean;
   onSignIn?: () => void;
 }
-
-const roleOptions: User["role"][] = ["umkm", "pendamping"];
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit,
@@ -35,7 +33,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    role: "umkm",
+    role: "umkm", // Fixed role untuk pelaku UMKM
     agreeToTerms: false,
   });
 
@@ -118,17 +116,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         ...prev,
         [field]: undefined,
       }));
-    }
-  };
-
-  const getRoleDisplayName = (role: User["role"]): string => {
-    switch (role) {
-      case "umkm":
-        return "Pelaku UMKM";
-      case "pendamping":
-        return "Pendamping UMKM";
-      default:
-        return role;
     }
   };
 
@@ -217,7 +204,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             </View>
             <Text style={styles.welcomeTitle}>Bergabung dengan SAPA UMKM</Text>
             <Text style={styles.welcomeSubtitle}>
-              Daftarkan akun Anda untuk memulai perjalanan digital
+              Daftarkan akun pelaku UMKM Anda untuk memulai perjalanan digital
             </Text>
           </View>
 
@@ -300,55 +287,25 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 icon="call-outline"
               />
 
-              {/* Role Selection */}
+              {/* Role Information - Hidden untuk pelaku UMKM */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Role</Text>
-                <View style={styles.roleContainer}>
-                  {roleOptions.map((role) => (
-                    <TouchableOpacity
-                      key={role}
-                      style={[
-                        styles.roleOption,
-                        formData.role === role && styles.roleOptionSelected,
-                      ]}
-                      onPress={() => updateField("role", role)}
-                    >
-                      <View
-                        style={[
-                          styles.roleRadio,
-                          formData.role === role && styles.roleRadioSelected,
-                        ]}
-                      >
-                        {formData.role === role && (
-                          <View style={styles.roleRadioDot} />
-                        )}
-                      </View>
-                      <View style={styles.roleContent}>
-                        <Text
-                          style={[
-                            styles.roleTitle,
-                            formData.role === role && styles.roleSelectedText,
-                          ]}
-                        >
-                          {getRoleDisplayName(role)}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.roleDescription,
-                            formData.role === role && styles.roleSelectedText,
-                          ]}
-                        >
-                          {role === "umkm"
-                            ? "Untuk pemilik usaha UMKM"
-                            : "Untuk pendamping/konsultan UMKM"}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
+                <Text style={styles.inputLabel}>Tipe Akun</Text>
+                <View style={styles.roleInfoContainer}>
+                  <View style={styles.roleInfoCard}>
+                    <Ionicons
+                      name="business-outline"
+                      size={24}
+                      color="#4F46E5"
+                    />
+                    <View style={styles.roleInfoContent}>
+                      <Text style={styles.roleInfoTitle}>Pelaku UMKM</Text>
+                      <Text style={styles.roleInfoDescription}>
+                        Akun untuk pemilik usaha UMKM yang ingin mengembangkan
+                        bisnisnya
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-                {errors.role && (
-                  <Text style={styles.errorText}>{errors.role}</Text>
-                )}
               </View>
             </View>
 
@@ -785,5 +742,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     fontWeight: "500",
+  },
+  // Styles untuk role info container
+  roleInfoContainer: {
+    marginTop: 4,
+  },
+  roleInfoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#EEF2FF",
+    borderWidth: 2,
+    borderColor: "#4F46E5",
+    borderRadius: 12,
+    padding: 16,
+  },
+  roleInfoContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  roleInfoTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#4F46E5",
+    marginBottom: 2,
+  },
+  roleInfoDescription: {
+    fontSize: 14,
+    color: "#4F46E5",
+    lineHeight: 18,
   },
 });

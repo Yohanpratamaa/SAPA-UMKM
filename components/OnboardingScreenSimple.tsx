@@ -30,34 +30,34 @@ interface OnboardingScreenProps {
 const onboardingData: OnboardingItem[] = [
   {
     id: "1",
-    title: "Selamat Datang",
+    title: "Manajemen Profil UMKM",
     description:
-      "SAPA UMKM adalah platform digital untuk mendampingi dan mengembangkan usaha UMKM Indonesia menuju era digital yang lebih modern dan efisien.",
+      "Kelola informasi lengkap usaha Anda mulai dari data NIB, kontak bisnis, alamat usaha, hingga status operasional dalam satu dashboard yang mudah digunakan.",
     icon: "business-outline",
     colors: ["#3B82F6", "#2563EB", "#1D4ED8"] as const,
   },
   {
     id: "2",
-    title: "Pendampingan Profesional",
+    title: "Pelatihan dan Edukasi UMKM",
     description:
-      "Dapatkan bimbingan langsung dari ahli UMKM berpengalaman untuk mengoptimalkan strategi bisnis dan pemasaran digital Anda.",
-    icon: "people-outline",
+      "Akses berbagai program pelatihan, workshop bisnis, dan materi edukasi digital marketing untuk meningkatkan kemampuan dan daya saing UMKM Anda.",
+    icon: "school-outline",
     colors: ["#10B981", "#059669", "#047857"] as const,
   },
   {
     id: "3",
-    title: "Analisis & Laporan",
+    title: "Katalog Produk UMKM",
     description:
-      "Monitor perkembangan bisnis dengan dashboard analitik lengkap dan laporan otomatis yang membantu pengambilan keputusan strategis.",
-    icon: "analytics-outline",
+      "Tampilkan produk dan layanan UMKM dalam katalog digital yang menarik, lengkap dengan foto berkualitas, deskripsi detail, dan informasi harga terkini.",
+    icon: "grid-outline",
     colors: ["#8B5CF6", "#7C3AED", "#6D28D9"] as const,
   },
   {
     id: "4",
-    title: "Komunitas UMKM",
+    title: "Konsultasi FAQ UMKM",
     description:
-      "Bergabung dengan ribuan pelaku UMKM lainnya, berbagi pengalaman, dan membangun jaringan bisnis yang kuat untuk masa depan usaha Anda.",
-    icon: "globe-outline",
+      "Temukan jawaban atas pertanyaan seputar UMKM, akses panduan praktis, dan dapatkan konsultasi langsung dengan para ahli untuk solusi bisnis terbaik.",
+    icon: "help-circle-outline",
     colors: ["#F59E0B", "#D97706", "#B45309"] as const,
   },
 ];
