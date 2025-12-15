@@ -35,16 +35,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setAuthState((prev) => ({ ...prev, isLoading: true }));
 
-        // Create demo users if none exist
-        await AuthService.createDemoUsers();
-
         const [user, token] = await Promise.all([
           AuthService.getCurrentUser(),
           AuthService.getToken(),
         ]);
 
         if (user && token) {
-          // Validasi token
+          // Validasi token dengan API
           const isValidToken = await AuthService.validateToken(token);
 
           if (isValidToken) {

@@ -1,5 +1,6 @@
 export { AppFlowService } from "./AppFlowService";
-export { AuthService } from "./AuthService";
+// Use API-connected AuthService instead of local storage version
+export { AuthService } from "./AuthServiceAPI";
 export { ProductStorageService } from "./ProductStorageService";
 export { ProfileStorageService } from "./ProfileStorageService";
 export { TrainingStorageService } from "./TrainingStorageService";

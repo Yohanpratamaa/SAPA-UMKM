@@ -3,22 +3,33 @@
  * Connects React Native frontend to Flask backend
  */
 
-// Base URL untuk API backend
-// Gunakan IP address komputer Anda jika testing di device fisik
-// Gunakan localhost/10.0.2.2 untuk Android Emulator
-// Gunakan localhost untuk iOS Simulator
+import { Platform } from "react-native";
+
+// Determine the correct base URL based on platform
+const getBaseUrl = (): string => {
+  if (__DEV__) {
+    // Development mode
+    if (Platform.OS === "android") {
+      // Android Emulator uses 10.0.2.2 to access host machine
+      return "http://10.0.2.2:5000/api";
+    } else if (Platform.OS === "web") {
+      // Web browser - direct localhost
+      return "http://localhost:5000/api";
+    } else {
+      // iOS Simulator - localhost works
+      return "http://localhost:5000/api";
+    }
+  }
+  // Production
+  return "https://api.sapaumkm.com/api";
+};
 
 export const API_CONFIG = {
-  // Development - sesuaikan dengan IP komputer Anda
-  BASE_URL: __DEV__
-    ? "http://localhost:5000/api" // Untuk iOS Simulator
-    : "https://api.sapaumkm.com/api", // Production URL
+  // Dynamic base URL based on platform
+  BASE_URL: getBaseUrl(),
 
-  // Untuk Android Emulator, gunakan:
-  // BASE_URL: 'http://10.0.2.2:5000/api'
-
-  // Untuk device fisik, gunakan IP komputer:
-  // BASE_URL: 'http://192.168.1.xxx:5000/api'
+  // Manual override for device testing (use your computer's IP)
+  // BASE_URL: 'http://192.168.x.x:5000/api',
 
   TIMEOUT: 30000, // 30 seconds
 

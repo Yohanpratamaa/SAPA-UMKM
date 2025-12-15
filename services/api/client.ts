@@ -213,10 +213,16 @@ class ApiClient {
 
   // ==================== Auth Methods ====================
 
-  async login(email: string, password: string): Promise<ApiResponse> {
+  async login(identifier: string, password: string): Promise<ApiResponse> {
+    // Determine if identifier is email or username
+    const isEmail = identifier.includes("@");
+    const body = isEmail
+      ? { email: identifier, password }
+      : { username: identifier, password };
+
     const response = await this.request(API_CONFIG.ENDPOINTS.LOGIN, {
       method: "POST",
-      body: { email, password },
+      body,
       requireAuth: false,
     });
 

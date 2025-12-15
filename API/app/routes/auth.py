@@ -55,9 +55,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        # Generate tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        # Generate tokens (identity must be string)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return jsonify({
             'success': True,
@@ -121,9 +121,9 @@ def login():
         user.last_login = datetime.utcnow()
         db.session.commit()
         
-        # Generate tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        # Generate tokens (identity must be string)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return jsonify({
             'success': True,
@@ -261,7 +261,7 @@ def refresh_token():
     """Refresh access token"""
     try:
         user_id = get_jwt_identity()
-        access_token = create_access_token(identity=user_id)
+        access_token = create_access_token(identity=str(user_id))
         
         return jsonify({
             'success': True,
