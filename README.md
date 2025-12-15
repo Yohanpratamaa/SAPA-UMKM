@@ -2,45 +2,85 @@
 
 Aplikasi mobile untuk membantu pengelolaan dan pendampingan UMKM (Usaha Mikro, Kecil, dan Menengah) di Indonesia.
 
+## � Struktur Project
+
+```
+SAPA-UMKM/
+├── app/                    # React Native App (Expo Router)
+├── components/             # React Components
+├── services/               # Frontend Services + API Client
+├── API/                    # Flask Backend
+│   ├── app/               # Flask Application
+│   ├── requirements.txt   # Python Dependencies
+│   └── README.md          # Backend Documentation
+└── README.md              # This file
+```
+
+## 🚀 Quick Start
+
+### Backend (Flask API)
+
+```bash
+cd API
+python -m venv venv
+.\venv\Scripts\Activate.ps1  # Windows PowerShell
+pip install -r requirements.txt
+flask init-db
+flask seed-db
+flask run
+```
+
+Backend: **http://localhost:5000**
+
+📖 [Backend Documentation](./API/README.md)
+
+### Frontend (React Native)
+
+```bash
+npm install
+npx expo start
+```
+
+---
+
 ## 🚀 Fitur Utama
 
-### 1. 📋 Manajemen Profil UMKM ✅ (Tersedia)
+### 1. 📋 Manajemen Profil UMKM ✅
 
-Fitur pertama yang telah diimplementasi untuk mengelola data profil UMKM:
-
-**Fungsi:**
+Kelola data profil bisnis UMKM dengan lengkap:
 
 - ✅ Menyimpan data usaha lengkap (nama usaha, jenis produk/jasa, alamat, NIB, nomor kontak)
 - ✅ Upload dan preview foto/logo usaha
 - ✅ Validasi data input dengan error handling
 - ✅ Pencarian dan filter profil UMKM
 - ✅ Statistik jumlah UMKM berdasarkan status
-- ✅ Storage lokal menggunakan AsyncStorage
 
-**Detail Input:**
+### 2. 🎓 Pelatihan & Edukasi UMKM ✅
 
-- Nama Usaha (wajib)
-- Jenis Usaha: Kuliner, Fashion, Kerajinan, Teknologi, Pertanian, Jasa, Perdagangan, Lainnya
-- Deskripsi Usaha (opsional)
-- Alamat Lengkap (wajib)
-- Kota, Provinsi, Kode Pos (wajib)
-- NIB (Nomor Induk Berusaha) - 13 digit (wajib)
-- Nomor Kontak (wajib)
-- Email (opsional)
-- Website (opsional)
-- Foto/Logo Usaha (opsional)
+Materi pelatihan dan edukasi untuk pengembangan UMKM:
 
-### 2. 🤝 Bantuan & Pendampingan (Segera Hadir)
+- ✅ Modul pelatihan terstruktur
+- ✅ Kategori: Bisnis, Marketing, Keuangan, Kreatif
+- ✅ Tracking progress pembelajaran
+- ✅ Sertifikat kelulusan
 
-Program bantuan dan pendampingan untuk UMKM
+### 3. 🛒 Katalog Produk UMKM ✅
 
-### 3. 🛒 Marketplace Digital (Segera Hadir)
+Marketplace digital untuk showcase dan jual produk:
 
-Platform jual beli produk UMKM secara online
+- ✅ Tambah produk dengan multi foto (max 5)
+- ✅ Kategori produk lengkap
+- ✅ Manajemen harga dan stok
+- ✅ Filter dan pencarian produk
 
-### 4. 🎓 Pelatihan & Edukasi (Segera Hadir)
+### 4. 💬 Konsultasi FAQ UMKM ✅
 
-Materi pelatihan dan workshop untuk UMKM
+Bantuan dan panduan penggunaan aplikasi:
+
+- ✅ FAQ terorganisir per kategori
+- ✅ Fitur pencarian FAQ
+- ✅ Form konsultasi langsung
+- ✅ Feedback helpful/not helpful
 
 ## 🏗️ Struktur Aplikasi
 
@@ -135,31 +175,41 @@ npm start
 
 ## 📈 Status Development
 
-| Fitur                  | Status           | Progress |
-| ---------------------- | ---------------- | -------- |
-| Manajemen Profil UMKM  | ✅ Selesai       | 100%     |
-| Bantuan & Pendampingan | 🚧 Dalam Rencana | 0%       |
-| Marketplace Digital    | 🚧 Dalam Rencana | 0%       |
-| Pelatihan & Edukasi    | 🚧 Dalam Rencana | 0%       |
+| Fitur                 | Status     | Progress |
+| --------------------- | ---------- | -------- |
+| Manajemen Profil UMKM | ✅ Selesai | 100%     |
+| Pelatihan & Edukasi   | ✅ Selesai | 100%     |
+| Katalog Produk        | ✅ Selesai | 100%     |
+| Konsultasi FAQ        | ✅ Selesai | 100%     |
+| Backend API           | ✅ Selesai | 100%     |
 
-## 🔜 Rencana Pengembangan Selanjutnya
+## 🔗 API Endpoints
 
-1. **Fitur Bantuan & Pendampingan**
+| Resource  | Endpoint           | Description              |
+| --------- | ------------------ | ------------------------ |
+| Auth      | `/api/auth/*`      | Login, Register, Profile |
+| Profiles  | `/api/profiles/*`  | UMKM Profiles            |
+| Products  | `/api/products/*`  | Marketplace Products     |
+| Trainings | `/api/trainings/*` | Training Materials       |
+| FAQ       | `/api/faq/*`       | FAQ & Consultations      |
 
-   - Daftar program bantuan pemerintah
-   - Tracking status pengajuan bantuan
-   - Kontak pendamping UMKM
+📖 Lihat [API Documentation](./API/README.md) untuk detail lengkap.
 
-2. **Marketplace Digital**
+## 🛠️ Tech Stack
 
-   - Katalog produk UMKM
-   - Sistem order dan pembayaran
-   - Review dan rating
+### Frontend
 
-3. **Pelatihan & Edukasi**
-   - Video tutorial bisnis
-   - Webinar dan workshop
-   - Sertifikat pelatihan
+- **React Native** + **Expo**
+- **TypeScript** untuk type safety
+- **Expo Router** untuk navigasi
+- **NativeWind** (TailwindCSS) untuk styling
+
+### Backend
+
+- **Python 3.9+** + **Flask**
+- **SQLAlchemy** (ORM)
+- **MySQL** (via Laragon)
+- **JWT Authentication**
 
 ## 🤝 Kontribusi
 
