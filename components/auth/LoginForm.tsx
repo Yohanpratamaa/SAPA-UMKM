@@ -282,13 +282,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </View>
           )}
 
-          Demo Login Button
           {onDemoLogin && (
             <TouchableOpacity style={styles.demoButton} onPress={onDemoLogin}>
               <Text style={styles.demoButtonText}>🎭 Coba Demo Login</Text>
             </TouchableOpacity>
           )}
-
         </View>
       </View>
     </View>

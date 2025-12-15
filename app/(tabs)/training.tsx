@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   FlatList,
   Image,
@@ -12,251 +12,43 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
-
-// Data training modules untuk membangun bisnis
-const businessTrainingModules = [
-  {
-    id: "1",
-    title: "Memahami Dasar-Dasar Bisnis",
-    description:
-      "Pelajari konsep fundamental dalam membangun bisnis dari nol hingga sukses",
-    duration: "45 menit",
-    type: "Video + Artikel",
-    difficulty: "Pemula",
-    thumbnail:
-      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
-    modules: [
-      {
-        id: "1-1",
-        title: "Apa itu Bisnis?",
-        type: "Video",
-        duration: "12 menit",
-        content:
-          "Pengenalan konsep bisnis, jenis-jenis bisnis, dan peluang bisnis di era digital",
-      },
-      {
-        id: "1-2",
-        title: "Mindset Entrepreneur",
-        type: "Artikel",
-        duration: "15 menit",
-        content:
-          "Membangun pola pikir wirausaha yang sukses dan mengatasi ketakutan memulai bisnis",
-      },
-      {
-        id: "1-3",
-        title: "Analisis Peluang Bisnis",
-        type: "Video",
-        duration: "18 menit",
-        content:
-          "Cara mengidentifikasi dan mengevaluasi peluang bisnis yang menguntungkan",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Riset Pasar dan Target Customer",
-    description:
-      "Memahami pasar dan menentukan target customer yang tepat untuk bisnis Anda",
-    duration: "60 menit",
-    type: "Video + Artikel",
-    difficulty: "Pemula",
-    thumbnail:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400",
-    modules: [
-      {
-        id: "2-1",
-        title: "Teknik Riset Pasar",
-        type: "Video",
-        duration: "20 menit",
-        content: "Metode dan tools untuk melakukan riset pasar yang efektif",
-      },
-      {
-        id: "2-2",
-        title: "Menentukan Target Market",
-        type: "Video",
-        duration: "18 menit",
-        content:
-          "Cara mengidentifikasi dan mendefinisikan target customer yang ideal",
-      },
-      {
-        id: "2-3",
-        title: "Analisis Kompetitor",
-        type: "Artikel",
-        duration: "22 menit",
-        content:
-          "Strategi menganalisis kompetitor dan mencari competitive advantage",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Perencanaan Bisnis & Business Model",
-    description:
-      "Menyusun rencana bisnis yang solid dan memilih model bisnis yang tepat",
-    duration: "75 menit",
-    type: "Video + Artikel",
-    difficulty: "Menengah",
-    thumbnail:
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400",
-    modules: [
-      {
-        id: "3-1",
-        title: "Business Model Canvas",
-        type: "Video",
-        duration: "25 menit",
-        content:
-          "Memahami dan menggunakan Business Model Canvas untuk merancang bisnis",
-      },
-      {
-        id: "3-2",
-        title: "Menyusun Business Plan",
-        type: "Video",
-        duration: "30 menit",
-        content:
-          "Langkah-langkah membuat rencana bisnis yang komprehensif dan menarik investor",
-      },
-      {
-        id: "3-3",
-        title: "Strategi Penetapan Harga",
-        type: "Artikel",
-        duration: "20 menit",
-        content:
-          "Berbagai metode penetapan harga yang menguntungkan dan kompetitif",
-      },
-    ],
-  },
-  {
-    id: "4",
-    title: "Digital Marketing untuk UMKM",
-    description:
-      "Strategi pemasaran digital yang efektif untuk mengembangkan bisnis UMKM",
-    duration: "90 menit",
-    type: "Video + Artikel",
-    difficulty: "Menengah",
-    thumbnail:
-      "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=400",
-    modules: [
-      {
-        id: "4-1",
-        title: "Social Media Marketing",
-        type: "Video",
-        duration: "25 menit",
-        content: "Strategi pemasaran di Instagram, Facebook, TikTok untuk UMKM",
-      },
-      {
-        id: "4-2",
-        title: "Content Marketing Strategy",
-        type: "Video",
-        duration: "30 menit",
-        content: "Membuat konten yang menarik dan meningkatkan engagement",
-      },
-      {
-        id: "4-3",
-        title: "SEO untuk Bisnis Lokal",
-        type: "Artikel",
-        duration: "20 menit",
-        content: "Optimasi website dan Google My Business untuk bisnis lokal",
-      },
-      {
-        id: "4-4",
-        title: "Email Marketing & WhatsApp Business",
-        type: "Video",
-        duration: "15 menit",
-        content:
-          "Memanfaatkan email dan WhatsApp untuk komunikasi dengan customer",
-      },
-    ],
-  },
-  {
-    id: "5",
-    title: "Manajemen Keuangan Bisnis",
-    description:
-      "Mengelola keuangan bisnis dengan baik untuk pertumbuhan yang berkelanjutan",
-    duration: "80 menit",
-    type: "Video + Artikel",
-    difficulty: "Menengah",
-    thumbnail:
-      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
-    modules: [
-      {
-        id: "5-1",
-        title: "Pencatatan Keuangan Sederhana",
-        type: "Video",
-        duration: "22 menit",
-        content: "Sistem pencatatan keuangan yang mudah untuk UMKM",
-      },
-      {
-        id: "5-2",
-        title: "Cash Flow Management",
-        type: "Video",
-        duration: "25 menit",
-        content: "Mengelola arus kas untuk menjaga likuiditas bisnis",
-      },
-      {
-        id: "5-3",
-        title: "Analisis Laporan Keuangan",
-        type: "Artikel",
-        duration: "18 menit",
-        content:
-          "Membaca dan menganalisis laporan keuangan untuk pengambilan keputusan",
-      },
-      {
-        id: "5-4",
-        title: "Strategi Investasi & Pinjaman",
-        type: "Video",
-        duration: "15 menit",
-        content:
-          "Memahami sumber pendanaan dan strategi investasi untuk pertumbuhan",
-      },
-    ],
-  },
-  {
-    id: "6",
-    title: "Scaling & Mengembangkan Bisnis",
-    description:
-      "Strategi untuk mengembangkan dan memperbesar skala bisnis Anda",
-    duration: "70 menit",
-    type: "Video + Artikel",
-    difficulty: "Lanjutan",
-    thumbnail:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
-    modules: [
-      {
-        id: "6-1",
-        title: "Membangun Tim yang Solid",
-        type: "Video",
-        duration: "20 menit",
-        content: "Strategi rekrutmen dan membangun budaya kerja yang positif",
-      },
-      {
-        id: "6-2",
-        title: "Sistem & Proses Bisnis",
-        type: "Video",
-        duration: "25 menit",
-        content: "Membuat sistem operasional yang efisien dan dapat di-scale",
-      },
-      {
-        id: "6-3",
-        title: "Ekspansi Pasar",
-        type: "Artikel",
-        duration: "15 menit",
-        content: "Strategi memperluas jangkauan pasar dan diversifikasi produk",
-      },
-      {
-        id: "6-4",
-        title: "Teknologi untuk Bisnis",
-        type: "Video",
-        duration: "10 menit",
-        content: "Memanfaatkan teknologi untuk otomatisasi dan efisiensi",
-      },
-    ],
-  },
-];
+import { TrainingStorageService } from "../../services";
 
 function TabTrainingScreen() {
   const router = useRouter();
+  const [trainings, setTrainings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedModule, setSelectedModule] = useState<any>(null);
   const [showModuleDetail, setShowModuleDetail] = useState(false);
+
+  const loadTrainings = async () => {
+    try {
+      setLoading(true);
+      const data = await TrainingStorageService.getAllTrainings();
+      // Map API data to UI format
+      const mappedData = data.map((t) => ({
+        id: t.id,
+        title: t.judul,
+        description: t.deskripsi,
+        duration: `${t.durasi} menit`,
+        type: t.tipeTraining,
+        difficulty: t.level,
+        thumbnail: t.thumbnail || "https://via.placeholder.com/400x200",
+        modules: t.modules || [],
+      }));
+      setTrainings(mappedData);
+    } catch (error) {
+      console.error("Error loading trainings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTrainings();
+    }, [])
+  );
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -520,13 +312,13 @@ function TabTrainingScreen() {
         <View className="flex-row justify-between">
           <View className="items-center">
             <Text className="text-2xl font-bold text-blue-600">
-              {businessTrainingModules.length}
+              {trainings.length}
             </Text>
             <Text className="text-sm text-gray-600">Pelatihan</Text>
           </View>
           <View className="items-center">
             <Text className="text-2xl font-bold text-green-600">
-              {businessTrainingModules.reduce(
+              {trainings.reduce(
                 (total, module) => total + module.modules.length,
                 0
               )}
@@ -546,7 +338,7 @@ function TabTrainingScreen() {
 
       {/* Training List */}
       <FlatList
-        data={businessTrainingModules}
+        data={trainings}
         renderItem={renderTrainingCard}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}

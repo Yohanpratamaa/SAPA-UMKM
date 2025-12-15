@@ -5,9 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_CONFIG } from "./config";
 
 // Storage keys
-const TOKEN_KEY = "sapa_umkm_token";
-const REFRESH_TOKEN_KEY = "sapa_umkm_refresh_token";
-const USER_KEY = "sapa_umkm_user";
+const TOKEN_KEY = "SAPA_UMKM_TOKEN";
+const REFRESH_TOKEN_KEY = "SAPA_UMKM_REFRESH_TOKEN";
+const USER_KEY = "SAPA_UMKM_USER";
 
 // Types
 interface ApiResponse<T = any> {

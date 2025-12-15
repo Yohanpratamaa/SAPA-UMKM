@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProductCard } from "../../components/ProductCard";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
+import { useAuth } from "../../contexts";
 import { ProductStorageService, ProfileStorageService } from "../../services";
 import {
   KATEGORI_PRODUK,
@@ -25,6 +26,7 @@ import {
 } from "../../types";
 
 function MarketplaceScreen() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [profiles, setProfiles] = useState<{ [key: string]: UMKMProfile }>({});
@@ -87,9 +89,12 @@ function MarketplaceScreen() {
             tag.toLowerCase().includes(lowercaseQuery)
           ) ||
           product.kategori.toLowerCase().includes(lowercaseQuery) ||
-          profiles[product.umkmId]?.namaUsaha
-            .toLowerCase()
-            .includes(lowercaseQuery)
+          (product.umkmNama &&
+            product.umkmNama.toLowerCase().includes(lowercaseQuery)) ||
+          (profiles[product.umkmId]?.namaUsaha &&
+            profiles[product.umkmId].namaUsaha
+              .toLowerCase()
+              .includes(lowercaseQuery))
       );
     }
 
@@ -144,44 +149,54 @@ function MarketplaceScreen() {
     );
   };
 
-  const renderProduct = ({ item }: { item: Product }) => (
-    <ProductCard
-      product={item}
-      umkmName={profiles[item.umkmId]?.namaUsaha}
-      showUMKMName={true}
-      onPress={() => {
-        console.log(
-          "Marketplace - Navigating to product detail with ID:",
-          item.id
-        );
-        try {
-          router.push({
-            pathname: "/marketplace/[id]" as any,
-            params: { id: item.id },
-          });
-          console.log("Marketplace - Navigation called for detail");
-        } catch (error) {
-          console.error("Marketplace - Navigation error for detail:", error);
+  const renderProduct = ({ item }: { item: Product }) => {
+    const isOwner = user?.id === item.umkmId;
+    return (
+      <ProductCard
+        product={item}
+        umkmName={item.umkmNama || profiles[item.umkmId]?.namaUsaha}
+        showUMKMName={true}
+        onPress={() => {
+          console.log(
+            "Marketplace - Navigating to product detail with ID:",
+            item.id
+          );
+          try {
+            router.push({
+              pathname: "/marketplace/[id]" as any,
+              params: { id: item.id },
+            });
+            console.log("Marketplace - Navigation called for detail");
+          } catch (error) {
+            console.error("Marketplace - Navigation error for detail:", error);
+          }
+        }}
+        onEdit={
+          isOwner
+            ? () => {
+                console.log(
+                  "Marketplace - Navigating to product edit with ID:",
+                  item.id
+                );
+                try {
+                  router.push({
+                    pathname: "/marketplace/[id]/edit" as any,
+                    params: { id: item.id },
+                  });
+                  console.log("Marketplace - Navigation called for edit");
+                } catch (error) {
+                  console.error(
+                    "Marketplace - Navigation error for edit:",
+                    error
+                  );
+                }
+              }
+            : undefined
         }
-      }}
-      onEdit={() => {
-        console.log(
-          "Marketplace - Navigating to product edit with ID:",
-          item.id
-        );
-        try {
-          router.push({
-            pathname: "/marketplace/[id]/edit" as any,
-            params: { id: item.id },
-          });
-          console.log("Marketplace - Navigation called for edit");
-        } catch (error) {
-          console.error("Marketplace - Navigation error for edit:", error);
-        }
-      }}
-      onDelete={() => handleDeleteProduct(item)}
-    />
-  );
+        onDelete={isOwner ? () => handleDeleteProduct(item) : undefined}
+      />
+    );
+  };
 
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center py-16">

@@ -1,6 +1,5 @@
 import { Alert } from "react-native";
-import { ProductStorageService } from "../services/ProductStorageService";
-import { ProfileStorageService } from "../services/ProfileStorageService";
+import { ProductStorageService, ProfileStorageService } from "../services";
 import { Product } from "../types/product";
 import { UMKMProfile } from "../types/profile";
 

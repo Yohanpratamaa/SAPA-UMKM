@@ -209,8 +209,8 @@ export default function LoginScreen() {
             loading={loading}
             onForgotPassword={handleForgotPassword}
             onSignUp={handleSignUp}
-            onDemoLogin={handleDemoLogin}
-            onDebugAction={handleDebugAction}
+            // onDemoLogin={handleDemoLogin}
+            // onDebugAction={handleDebugAction}
           />
         </KeyboardAvoidingView>
       </SafeAreaView>

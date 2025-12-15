@@ -85,6 +85,7 @@ class Product(db.Model):
             'views': self.views,
             'sold': self.sold,
             'rating': self.rating,
+            'umkmNama': self.profile.nama_umkm if self.profile else None,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
             'updatedAt': self.updated_at.isoformat() if self.updated_at else None
         }

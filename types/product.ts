@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   umkmId: string; // ID UMKM yang memiliki produk ini
+  umkmNama?: string; // Nama UMKM (optional, populated from backend)
   nama: string;
   deskripsi: string;
   harga: number;
@@ -12,6 +13,10 @@ export interface Product {
   isAktif: boolean;
   tanggalDibuat: Date;
   tanggalDiperbarui: Date;
+  // Additional fields from backend
+  rating?: number;
+  terjual?: number;
+  lokasi?: string;
 }
 
 export interface ProductFormData {
