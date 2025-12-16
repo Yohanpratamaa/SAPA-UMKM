@@ -382,31 +382,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               </LinearGradient>
             </TouchableOpacity>
 
-            {/* Manual Test Register Button */}
-            <TouchableOpacity
-              style={styles.testButton}
-              onPress={() => {
-                console.log("Manual Test Register Button Pressed");
-                const testData: RegisterFormData = {
-                  email: "test@register.com",
-                  username: "testregister",
-                  fullName: "Test Register User",
-                  phoneNumber: "+6281234567890",
-                  password: "test123",
-                  confirmPassword: "test123",
-                  role: "umkm",
-                  agreeToTerms: true,
-                };
-                console.log(
-                  "Manual Test: Calling onSubmit with test data:",
-                  testData
-                );
-                onSubmit(testData);
-              }}
-            >
-              <Text style={styles.testButtonText}>🧪 Test Register</Text>
-            </TouchableOpacity>
-
             {/* Sign In Link */}
             {onSignIn && (
               <View style={styles.signInContainer}>

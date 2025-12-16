@@ -24,22 +24,35 @@ export default function RegisterScreen() {
 
       if (response.success && response.user && response.token) {
         console.log(
-          "RegisterScreen: Registration successful, saving user data"
+          "RegisterScreen: Registration successful. Redirecting to login."
         );
-        // Simpan user dan token
-        await AuthService.saveCurrentUser(response.user);
-        await AuthService.saveToken(response.token);
 
-        Alert.alert("Berhasil", response.message || "Akun berhasil dibuat!", [
-          {
-            text: "OK",
-            onPress: () => {
-              console.log("RegisterScreen: Navigating to home");
-              // Navigate ke halaman utama
-              router.replace("/(tabs)/home");
+        // Karena user diminta untuk login manual setelah register,
+        // kita hapus sesi yang otomatis tersimpan oleh AuthService.register
+        try {
+          await AuthService.logout();
+        } catch (e) {
+          console.warn("RegisterScreen: Logout error (ignored):", e);
+        }
+
+        Alert.alert(
+          "Registrasi Berhasil",
+          "Akun Anda berhasil dibuat. Silakan login untuk melanjutkan.",
+          [
+            {
+              text: "Login Sekarang",
+              onPress: () => {
+                console.log("RegisterScreen: Navigating to login");
+                // Navigate ke halaman login
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/auth/login");
+                }
+              },
             },
-          },
-        ]);
+          ]
+        );
       } else {
         // Tampilkan error
         console.log("RegisterScreen: Registration failed:", response.message);
