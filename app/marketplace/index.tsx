@@ -17,19 +17,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ProductCard } from "../../components/ProductCard";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
 import { useAuth } from "../../contexts";
-import { ProductStorageService, ProfileStorageService } from "../../services";
-import {
-  KATEGORI_PRODUK,
-  Product,
-  ProductFilter,
-  UMKMProfile,
-} from "../../types";
+import { ProductStorageService } from "../../services";
+import { KATEGORI_PRODUK, Product, ProductFilter } from "../../types";
 
 function MarketplaceScreen() {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [profiles, setProfiles] = useState<{ [key: string]: UMKMProfile }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,14 +38,6 @@ function MarketplaceScreen() {
       const allProducts = await ProductStorageService.getAllProducts();
       const activeProducts = allProducts.filter((p) => p.isAktif);
       setProducts(activeProducts);
-
-      // Load UMKM profiles
-      const allProfiles = await ProfileStorageService.getAllProfiles();
-      const profilesMap: { [key: string]: UMKMProfile } = {};
-      allProfiles.forEach((profile) => {
-        profilesMap[profile.id] = profile;
-      });
-      setProfiles(profilesMap);
 
       console.log("Marketplace - Loaded", activeProducts.length, "products");
     } catch (error) {
@@ -90,11 +76,7 @@ function MarketplaceScreen() {
           ) ||
           product.kategori.toLowerCase().includes(lowercaseQuery) ||
           (product.umkmNama &&
-            product.umkmNama.toLowerCase().includes(lowercaseQuery)) ||
-          (profiles[product.umkmId]?.namaUsaha &&
-            profiles[product.umkmId].namaUsaha
-              .toLowerCase()
-              .includes(lowercaseQuery))
+            product.umkmNama.toLowerCase().includes(lowercaseQuery))
       );
     }
 
@@ -154,7 +136,7 @@ function MarketplaceScreen() {
     return (
       <ProductCard
         product={item}
-        umkmName={item.umkmNama || profiles[item.umkmId]?.namaUsaha}
+        umkmName={item.umkmNama}
         showUMKMName={true}
         onPress={() => {
           console.log(

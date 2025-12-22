@@ -27,10 +27,10 @@ python -m venv venv
 pip install -r requirements.txt
 flask init-db
 flask seed-db
-flask run
+python run.py
 ```
 
-Backend: **http://localhost:5000**
+Backend akan berjalan di: **http://192.168.0.14:5000** (atau IP komputer Anda)
 
 📖 [Backend Documentation](./API/README.md)
 
@@ -40,6 +40,59 @@ Backend: **http://localhost:5000**
 npm install
 npx expo start
 ```
+
+**PENTING:** Sebelum menjalankan front-end, pastikan:
+
+1. Backend sudah berjalan
+2. IP address di `services/api/config.ts` sudah sesuai dengan IP komputer Anda
+3. Device/emulator terhubung ke WiFi yang sama dengan komputer
+
+---
+
+## 🔧 Troubleshooting Koneksi
+
+Jika front-end tidak bisa terhubung ke back-end:
+
+### 1. Jalankan Script Otomatis (Recommended)
+
+```powershell
+.\test-connection.ps1
+```
+
+Script ini akan:
+
+- Cek IP address komputer
+- Verify port 5000 listening
+- Test koneksi ke backend
+- Update konfigurasi front-end
+- Membuat firewall rule jika diperlukan
+
+### 2. Manual Testing
+
+**Cek IP Komputer:**
+
+```powershell
+ipconfig | Select-String "IPv4"
+```
+
+**Test Backend:**
+
+```
+http://192.168.0.14:5000/api/health
+```
+
+**Update Config:**
+Edit file `services/api/config.ts`:
+
+```typescript
+const YOUR_COMPUTER_IP = "192.168.0.14"; // Ganti dengan IP Anda
+```
+
+### 📚 Dokumentasi Lengkap:
+
+- 📖 [Panduan Lengkap Troubleshooting](./TROUBLESHOOTING.md)
+- 🐛 [Common Errors & Solutions](./COMMON-ERRORS.md)
+- ⚡ [Quick Reference](./QUICK-REFERENCE.md)
 
 ---
 

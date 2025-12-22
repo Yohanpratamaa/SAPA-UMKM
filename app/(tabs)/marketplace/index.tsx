@@ -16,21 +16,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProductCard } from "../../../components/ProductCard";
 import { ProtectedRoute } from "../../../components/ProtectedRoute";
-import {
-  ProductStorageService,
-  ProfileStorageService,
-} from "../../../services";
-import {
-  KATEGORI_PRODUK,
-  Product,
-  ProductFilter,
-  UMKMProfile,
-} from "../../../types";
+import { ProductStorageService } from "../../../services";
+import { KATEGORI_PRODUK, Product, ProductFilter } from "../../../types";
 
 function TabMarketplaceScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [profiles, setProfiles] = useState<{ [key: string]: UMKMProfile }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -45,14 +36,6 @@ function TabMarketplaceScreen() {
       const allProducts = await ProductStorageService.getAllProducts();
       const activeProducts = allProducts.filter((p) => p.isAktif);
       setProducts(activeProducts);
-
-      // Load UMKM profiles
-      const allProfiles = await ProfileStorageService.getAllProfiles();
-      const profilesMap: { [key: string]: UMKMProfile } = {};
-      allProfiles.forEach((profile) => {
-        profilesMap[profile.id] = profile;
-      });
-      setProfiles(profilesMap);
 
       console.log(
         "Tab Marketplace - Loaded",
@@ -94,9 +77,8 @@ function TabMarketplaceScreen() {
             tag.toLowerCase().includes(lowercaseQuery)
           ) ||
           product.kategori.toLowerCase().includes(lowercaseQuery) ||
-          profiles[product.umkmId]?.namaUsaha
-            .toLowerCase()
-            .includes(lowercaseQuery)
+          (product.umkmNama &&
+            product.umkmNama.toLowerCase().includes(lowercaseQuery))
       );
     }
 
@@ -154,7 +136,7 @@ function TabMarketplaceScreen() {
   const renderProduct = ({ item }: { item: Product }) => (
     <ProductCard
       product={item}
-      umkmName={profiles[item.umkmId]?.namaUsaha}
+      umkmName={item.umkmNama}
       showUMKMName={true}
       onPress={() => {
         console.log(

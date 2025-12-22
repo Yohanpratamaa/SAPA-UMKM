@@ -5,10 +5,24 @@
 
 import { Platform } from "react-native";
 
+// ==================================================================
+// 🔧 KONFIGURASI IP ADDRESS (PENTING UNTUK EXPO GO DI ANDROID)
+// ==================================================================
+// Ganti IP di bawah ini dengan IPv4 komputer Anda (cek pakai 'ipconfig')
+// Contoh: "192.168.1.5" atau "192.168.100.12"
+// JANGAN gunakan "localhost" atau "127.0.0.1" untuk device fisik
+const YOUR_COMPUTER_IP = "192.168.0.14"; // <--- GANTI INI
+// ==================================================================
+
 // Determine the correct base URL based on platform
 const getBaseUrl = (): string => {
   if (__DEV__) {
-    // Development mode
+    // Jika IP sudah diset manual (tidak mengandung "X" placeholder), gunakan itu
+    if (YOUR_COMPUTER_IP && !YOUR_COMPUTER_IP.includes("X")) {
+      return `http://${YOUR_COMPUTER_IP}:5000/api`;
+    }
+
+    // Development mode defaults
     if (Platform.OS === "android") {
       // Android Emulator uses 10.0.2.2 to access host machine
       return "http://10.0.2.2:5000/api";
