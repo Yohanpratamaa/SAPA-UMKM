@@ -131,6 +131,8 @@ export class AuthService {
       console.log("AuthService: API response:", response);
 
       if (response.success && response.data) {
+        console.log("✅ AuthService.login: API response successful");
+
         // Convert API response to local User type
         const apiUser = response.data.user;
         const user: User = {
@@ -148,9 +150,16 @@ export class AuthService {
             : undefined,
         };
 
+        console.log("💾 AuthService.login: Storing user and tokens...");
+        console.log("💾 Token details:", {
+          accessTokenLength: response.data.accessToken?.length,
+          hasRefreshToken: !!response.data.refreshToken,
+        });
+
         // Store locally
         await this.saveCurrentUser(user);
         await this.saveToken(response.data.accessToken);
+
         if (response.data.refreshToken) {
           await AsyncStorage.setItem(
             STORAGE_KEYS.REFRESH_TOKEN,
@@ -162,6 +171,15 @@ export class AuthService {
         if (formData.rememberMe) {
           await AsyncStorage.setItem(STORAGE_KEYS.REMEMBER_ME, "true");
         }
+
+        // Verify token was saved
+        const savedToken = await this.getToken();
+        console.log("🔍 AuthService.login: Token verification:", {
+          tokenSaved: !!savedToken,
+          tokensMatch: savedToken === response.data.accessToken,
+        });
+
+        console.log("✅ AuthService.login: All data saved successfully!");
 
         return {
           success: true,

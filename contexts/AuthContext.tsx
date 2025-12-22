@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
+        console.log("🔍 AuthContext: Checking auth status on mount...");
         setAuthState((prev) => ({ ...prev, isLoading: true }));
 
         const [user, token] = await Promise.all([
@@ -40,11 +41,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           AuthService.getToken(),
         ]);
 
+        console.log("🔍 AuthContext: Retrieved from storage:", {
+          hasUser: !!user,
+          hasToken: !!token,
+          userId: user?.id,
+          tokenPreview: token?.substring(0, 20) + "...",
+        });
+
         if (user && token) {
+          console.log("✅ AuthContext: User and token found, validating...");
           // Validasi token dengan API
           const isValidToken = await AuthService.validateToken(token);
 
+          console.log("🔍 AuthContext: Token validation result:", isValidToken);
+
           if (isValidToken) {
+            console.log(
+              "✅ AuthContext: Token is valid, setting authenticated state"
+            );
             setAuthState({
               user,
               isAuthenticated: true,
@@ -52,10 +66,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               token,
             });
           } else {
+            console.warn("⚠️ AuthContext: Token is invalid, logging out");
             // Token tidak valid, logout
             await logout();
           }
         } else {
+          console.log(
+            "ℹ️ AuthContext: No user or token found, setting unauthenticated state"
+          );
           setAuthState({
             user: null,
             isAuthenticated: false,
@@ -64,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           });
         }
       } catch (error) {
-        console.error("Error checking auth status:", error);
+        console.error("❌ AuthContext: Error checking auth status:", error);
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -79,14 +97,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (formData: LoginFormData): Promise<boolean> => {
     try {
-      console.log("AuthContext: login called with:", formData);
+      console.log("🔐 AuthContext.login: Starting login process...");
+      console.log("🔐 AuthContext.login: Form data:", {
+        emailOrUsername: formData.emailOrUsername,
+        rememberMe: formData.rememberMe,
+      });
+
       const response = await AuthService.login(formData);
-      console.log("AuthContext: AuthService response:", response);
+      console.log("🔐 AuthContext.login: AuthService response:", {
+        success: response.success,
+        hasUser: !!response.user,
+        hasToken: !!response.token,
+        message: response.message,
+      });
 
       if (response.success && response.user && response.token) {
+        console.log(
+          "✅ AuthContext.login: Login successful, saving user and token..."
+        );
+
+        // Save to storage
         await AuthService.saveCurrentUser(response.user);
         await AuthService.saveToken(response.token);
 
+        // Verify saved
+        const savedToken = await AuthService.getToken();
+        console.log("🔍 AuthContext.login: Verification after save:", {
+          tokenSaved: !!savedToken,
+          tokenLength: savedToken?.length,
+        });
+
+        // Update state
         setAuthState({
           user: response.user,
           isAuthenticated: true,
@@ -94,14 +135,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           token: response.token,
         });
 
-        console.log("AuthContext: login successful");
+        console.log("✅ AuthContext.login: State updated, login complete!");
         return true;
       }
 
-      console.log("AuthContext: login failed:", response.message);
+      console.warn("⚠️ AuthContext.login: Login failed:", response.message);
       return false;
     } catch (error) {
-      console.error("AuthContext: Login error:", error);
+      console.error("❌ AuthContext.login: Login error:", error);
       return false;
     }
   };

@@ -125,9 +125,16 @@ class ApiClient {
     // Add auth token if required
     if (requireAuth) {
       const token = await this.getToken();
-      if (token) {
-        requestHeaders["Authorization"] = `Bearer ${token}`;
+      if (!token) {
+        console.error(`API Error: No token available for ${endpoint}`);
+        // Return auth error instead of making request
+        return {
+          success: false,
+          message: "Authentication required. Please login again.",
+        };
       }
+      requestHeaders["Authorization"] = `Bearer ${token}`;
+      console.log(`🔑 Token added to request: ${endpoint}`);
     }
 
     // Build request config
@@ -141,6 +148,11 @@ class ApiClient {
     }
 
     try {
+      console.log(`🌐 API Request: ${method} ${endpoint}`, {
+        requireAuth,
+        hasToken: !!requestHeaders["Authorization"],
+      });
+
       // Create timeout promise
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error("Request timeout")), this.timeout);
@@ -152,26 +164,40 @@ class ApiClient {
         timeoutPromise,
       ])) as Response;
 
+      console.log(`📦 API Response: ${method} ${endpoint}`, {
+        status: response.status,
+        ok: response.ok,
+      });
+
       // Parse response
       const data = await response.json();
 
       // Handle unauthorized (token expired)
       if (response.status === 401 && requireAuth) {
+        console.warn(
+          `⚠️ 401 Unauthorized for ${endpoint}, attempting token refresh...`
+        );
+
         // Try to refresh token
         const refreshed = await this.refreshToken();
         if (refreshed) {
+          console.log(`✅ Token refreshed successfully, retrying request...`);
           // Retry original request
           return this.request(endpoint, options);
         } else {
+          console.error(`❌ Token refresh failed, clearing tokens...`);
           // Clear tokens and throw error
           await this.clearTokens();
-          throw new Error("Session expired. Please login again.");
+          return {
+            success: false,
+            message: "Session expired. Please login again.",
+          };
         }
       }
 
       return data;
     } catch (error: any) {
-      console.error(`API Error [${method} ${endpoint}]:`, error);
+      console.error(`❌ API Error [${method} ${endpoint}]:`, error);
 
       // Return error response
       return {
@@ -214,24 +240,49 @@ class ApiClient {
   // ==================== Auth Methods ====================
 
   async login(identifier: string, password: string): Promise<ApiResponse> {
+    console.log(`🔐 ApiClient.login called with identifier: ${identifier}`);
+
     // Determine if identifier is email or username
     const isEmail = identifier.includes("@");
     const body = isEmail
       ? { email: identifier, password }
       : { username: identifier, password };
 
+    console.log(`📤 Sending login request...`);
     const response = await this.request(API_CONFIG.ENDPOINTS.LOGIN, {
       method: "POST",
       body,
       requireAuth: false,
     });
 
+    console.log(`📥 Login response:`, {
+      success: response.success,
+      hasData: !!response.data,
+      hasAccessToken: !!response.data?.accessToken,
+      hasRefreshToken: !!response.data?.refreshToken,
+      hasUser: !!response.data?.user,
+    });
+
     if (response.success && response.data) {
+      console.log(`💾 Saving tokens to storage...`);
+
+      // Save tokens
       await this.setTokens(
         response.data.accessToken,
         response.data.refreshToken
       );
+
+      // Save user data
       await this.setUser(response.data.user);
+
+      // Verify tokens were saved
+      const savedToken = await this.getToken();
+      console.log(`✅ Token saved successfully:`, {
+        tokenLength: savedToken?.length,
+        tokenPreview: savedToken?.substring(0, 20) + "...",
+      });
+    } else {
+      console.error(`❌ Login failed:`, response.message);
     }
 
     return response;

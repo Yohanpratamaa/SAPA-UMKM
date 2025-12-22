@@ -100,7 +100,7 @@ function TabMarketplaceScreen() {
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, products, filter, profiles]);
+  }, [searchQuery, products, filter]);
 
   const handleDeleteProduct = async (product: Product) => {
     console.log(
