@@ -1,13 +1,25 @@
 """
 Product Routes - UMKM Product/Marketplace Management
 """
+import os
+from datetime import datetime
+
 from app.models import Product
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from werkzeug.utils import secure_filename
 
 from app import db
 
 product_bp = Blueprint('product', __name__)
+
+# Upload configuration
+UPLOAD_FOLDER = 'uploads/products'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @product_bp.route('', methods=['GET'])
@@ -303,4 +315,74 @@ def get_categories():
         return jsonify({
             'success': False,
             'message': f'Failed to get categories: {str(e)}'
+        }), 500
+
+
+@product_bp.route('/upload-image', methods=['POST'])
+@jwt_required()
+def upload_product_image():
+    """Upload product image"""
+    try:
+        print("=== Upload Image Debug ===")
+        print(f"Request method: {request.method}")
+        print(f"Content-Type: {request.content_type}")
+        print(f"Files in request: {list(request.files.keys())}")
+        print(f"Form data: {list(request.form.keys())}")
+        print(f"Request data length: {len(request.data) if request.data else 0}")
+        print("========================")
+        
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'message': 'No file provided'
+            }), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'message': 'No file selected'
+            }), 400
+        
+        if file and allowed_file(file.filename):
+            # Generate unique filename
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
+            filename = secure_filename(file.filename)
+            name_without_ext = os.path.splitext(filename)[0]
+            ext = os.path.splitext(filename)[1]
+            unique_filename = f"{timestamp}_{name_without_ext}{ext}"
+            
+            # Ensure upload directory exists
+            upload_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), UPLOAD_FOLDER)
+            os.makedirs(upload_path, exist_ok=True)
+            
+            # Save file
+            filepath = os.path.join(upload_path, unique_filename)
+            file.save(filepath)
+            
+            # Generate URL
+            base_url = request.host_url.rstrip('/')
+            file_url = f"{base_url}/uploads/products/{unique_filename}"
+            
+            return jsonify({
+                'success': True,
+                'data': {
+                    'url': file_url,
+                    'filename': unique_filename
+                }
+            }), 200
+        
+        return jsonify({
+            'success': False,
+            'message': 'Invalid file type. Allowed: png, jpg, jpeg, gif, webp'
+        }), 400
+        
+    except Exception as e:
+        print(f"Upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'Failed to upload image: {str(e)}'
         }), 500

@@ -118,9 +118,14 @@ class ApiClient {
 
     // Build headers
     const requestHeaders: Record<string, string> = {
-      "Content-Type": "application/json",
       ...headers,
     };
+
+    // Only add Content-Type if not FormData (FormData sets its own boundary)
+    const isFormData = body instanceof FormData;
+    if (!isFormData) {
+      requestHeaders["Content-Type"] = "application/json";
+    }
 
     // Add auth token if required
     if (requireAuth) {
@@ -143,14 +148,22 @@ class ApiClient {
       headers: requestHeaders,
     };
 
+    // Handle body based on type
     if (body && method !== "GET") {
-      config.body = JSON.stringify(body);
+      if (isFormData) {
+        // FormData for file uploads - don't stringify
+        config.body = body as any;
+      } else {
+        // JSON for regular requests
+        config.body = JSON.stringify(body);
+      }
     }
 
     try {
       console.log(`🌐 API Request: ${method} ${endpoint}`, {
         requireAuth,
         hasToken: !!requestHeaders["Authorization"],
+        isFormData,
       });
 
       // Create timeout promise

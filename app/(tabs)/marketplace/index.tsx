@@ -19,9 +19,19 @@ import { ProtectedRoute } from "../../../components/ProtectedRoute";
 import { ProductStorageService } from "../../../services";
 import { KATEGORI_PRODUK, Product, ProductFilter } from "../../../types";
 
+// Tab types
+type MarketplaceTab = "my" | "all";
+
 function TabMarketplaceScreen() {
-  const [products, setProducts] = useState<Product[]>([]);
+  // Tab state
+  const [activeTab, setActiveTab] = useState<MarketplaceTab>("all");
+
+  // Product lists
+  const [myProducts, setMyProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  // UI state
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -32,15 +42,25 @@ function TabMarketplaceScreen() {
     try {
       setLoading(true);
 
-      // Load products
-      const allProducts = await ProductStorageService.getAllProducts();
-      const activeProducts = allProducts.filter((p) => p.isAktif);
-      setProducts(activeProducts);
+      // Load both lists in parallel
+      const [myProductsList, allProductsList] = await Promise.all([
+        ProductStorageService.getMyProducts(),
+        ProductStorageService.getAllProducts(),
+      ]);
+
+      // Filter active products
+      const activeMyProducts = myProductsList.filter((p) => p.isAktif);
+      const activeAllProducts = allProductsList.filter((p) => p.isAktif);
+
+      setMyProducts(activeMyProducts);
+      setAllProducts(activeAllProducts);
 
       console.log(
-        "Tab Marketplace - Loaded",
-        activeProducts.length,
-        "products"
+        "Tab Marketplace - Loaded:",
+        activeMyProducts.length,
+        "my products,",
+        activeAllProducts.length,
+        "all products"
       );
     } catch (error) {
       console.error("Error loading marketplace data:", error);
@@ -62,9 +82,12 @@ function TabMarketplaceScreen() {
     }, [])
   );
 
+  // Get current products based on active tab
+  const currentProducts = activeTab === "my" ? myProducts : allProducts;
+
   useEffect(() => {
-    // Apply search and filter
-    let filtered = products;
+    // Apply search and filter to current products
+    let filtered = currentProducts;
 
     // Text search
     if (searchQuery.trim()) {
@@ -100,7 +123,7 @@ function TabMarketplaceScreen() {
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, products, filter]);
+  }, [searchQuery, currentProducts, filter, activeTab]);
 
   const handleDeleteProduct = async (product: Product) => {
     console.log(
@@ -156,22 +179,33 @@ function TabMarketplaceScreen() {
           );
         }
       }}
-      onEdit={() => {
-        console.log(
-          "Tab Marketplace - Navigating to product edit with ID:",
-          item.id
-        );
-        try {
-          router.push({
-            pathname: "/marketplace/[id]/edit",
-            params: { id: item.id },
-          });
-          console.log("Tab Marketplace - Navigation called for edit");
-        } catch (error) {
-          console.error("Tab Marketplace - Navigation error for edit:", error);
-        }
-      }}
-      onDelete={() => handleDeleteProduct(item)}
+      // Only show edit/delete on "Produk Saya" tab
+      onEdit={
+        activeTab === "my"
+          ? () => {
+              console.log(
+                "Tab Marketplace - Navigating to product edit with ID:",
+                item.id
+              );
+              try {
+                router.push({
+                  pathname: "/marketplace/[id]/edit",
+                  params: { id: item.id },
+                });
+                console.log("Tab Marketplace - Navigation called for edit");
+              } catch (error) {
+                console.error(
+                  "Tab Marketplace - Navigation error for edit:",
+                  error
+                );
+              }
+            }
+          : undefined
+      }
+      onDelete={
+        activeTab === "my" ? () => handleDeleteProduct(item) : undefined
+      }
+      showActions={activeTab === "my"}
     />
   );
 
@@ -181,21 +215,27 @@ function TabMarketplaceScreen() {
       <Text className="text-gray-500 text-lg mt-4 mb-2">
         {searchQuery || Object.keys(filter).length > 0
           ? "Tidak ada produk yang ditemukan"
+          : activeTab === "my"
+          ? "Belum ada produk Anda"
           : "Belum ada produk"}
       </Text>
       <Text className="text-gray-400 text-center px-8 mb-6">
         {searchQuery || Object.keys(filter).length > 0
           ? "Coba ubah kata kunci atau filter pencarian"
-          : "Mulai tambahkan produk pertama Anda"}
+          : activeTab === "my"
+          ? "Mulai tambahkan produk pertama Anda"
+          : "Belum ada produk yang tersedia di marketplace"}
       </Text>
-      {!searchQuery && Object.keys(filter).length === 0 && (
-        <TouchableOpacity
-          onPress={() => router.push("/marketplace/create")}
-          className="bg-blue-600 px-6 py-3 rounded-lg"
-        >
-          <Text className="text-white font-semibold">Tambah Produk</Text>
-        </TouchableOpacity>
-      )}
+      {!searchQuery &&
+        Object.keys(filter).length === 0 &&
+        activeTab === "my" && (
+          <TouchableOpacity
+            onPress={() => router.push("/marketplace/create")}
+            className="bg-blue-600 px-6 py-3 rounded-lg"
+          >
+            <Text className="text-white font-semibold">Tambah Produk</Text>
+          </TouchableOpacity>
+        )}
     </View>
   );
 
@@ -235,6 +275,49 @@ function TabMarketplaceScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Tab Switcher */}
+        <View className="flex-row bg-gray-100 rounded-lg p-1 mb-4">
+          <TouchableOpacity
+            onPress={() => setActiveTab("all")}
+            className={`flex-1 py-2 rounded-md ${
+              activeTab === "all" ? "bg-white" : ""
+            }`}
+          >
+            <View className="items-center">
+              <Text
+                className={`font-semibold ${
+                  activeTab === "all" ? "text-blue-600" : "text-gray-600"
+                }`}
+              >
+                Semua Produk
+              </Text>
+              <Text className="text-xs text-gray-500 mt-0.5">
+                {allProducts.length} produk
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveTab("my")}
+            className={`flex-1 py-2 rounded-md ${
+              activeTab === "my" ? "bg-white" : ""
+            }`}
+          >
+            <View className="items-center">
+              <Text
+                className={`font-semibold ${
+                  activeTab === "my" ? "text-blue-600" : "text-gray-600"
+                }`}
+              >
+                Produk Saya
+              </Text>
+              <Text className="text-xs text-gray-500 mt-0.5">
+                {myProducts.length} produk
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Search Bar */}
         <View className="flex-row items-center space-x-2">
           <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-4 py-3">
@@ -270,7 +353,7 @@ function TabMarketplaceScreen() {
       </View>
 
       {/* Statistics */}
-      {products.length > 0 && (
+      {currentProducts.length > 0 && (
         <View className="bg-white px-4 py-3 border-b border-gray-200">
           <View className="flex-row justify-between">
             <View className="items-center">
@@ -281,19 +364,19 @@ function TabMarketplaceScreen() {
             </View>
             <View className="items-center">
               <Text className="text-2xl font-bold text-green-600">
-                {new Set(products.map((p) => p.umkmId)).size}
+                {new Set(currentProducts.map((p) => p.umkmId)).size}
               </Text>
               <Text className="text-sm text-gray-600">UMKM</Text>
             </View>
             <View className="items-center">
               <Text className="text-2xl font-bold text-purple-600">
-                {new Set(products.map((p) => p.kategori)).size}
+                {new Set(currentProducts.map((p) => p.kategori)).size}
               </Text>
               <Text className="text-sm text-gray-600">Kategori</Text>
             </View>
             <View className="items-center">
               <Text className="text-2xl font-bold text-orange-600">
-                {products.filter((p) => p.stok > 0).length}
+                {currentProducts.filter((p) => p.stok > 0).length}
               </Text>
               <Text className="text-sm text-gray-600">Tersedia</Text>
             </View>

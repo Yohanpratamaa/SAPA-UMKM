@@ -56,10 +56,25 @@ def create_app(config_name='development'):
     def health_check():
         return {'status': 'healthy', 'message': 'SAPA-UMKM API is running'}
     
+    # Serve uploaded files
+    @app.route('/uploads/<path:filename>')
+    def serve_uploads(filename):
+        """Serve uploaded files"""
+        import os
+
+        from flask import send_from_directory
+        upload_folder = os.path.join(app.root_path, '..', 'uploads')
+        return send_from_directory(upload_folder, filename)
+    
     # Create upload folder
     import os
-    upload_folder = app.config['UPLOAD_FOLDER']
+    upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
+    
+    # Create products subfolder
+    products_folder = os.path.join(upload_folder, 'products')
+    if not os.path.exists(products_folder):
+        os.makedirs(products_folder)
     
     return app

@@ -1,6 +1,7 @@
 import { Product, ProductFormData, ProductSearchParams } from "../types";
 import { apiClient } from "./api";
 import { API_CONFIG } from "./api/config";
+import { ImageUploadService } from "./ImageUploadService";
 
 export class ProductService {
   /**
@@ -97,6 +98,109 @@ export class ProductService {
   }
 
   /**
+   * Upload product image to server
+   * Try FormData first, fallback to FileSystem if it fails
+   */
+  static async uploadImage(imageUri: string): Promise<string | null> {
+    try {
+      console.log("📤 Uploading image:", imageUri);
+
+      // Method 1: Try FormData approach (standard for React Native)
+      try {
+        // Create form data (React Native compatible)
+        const formData = new FormData();
+
+        // Extract filename from URI
+        const uriParts = imageUri.split("/");
+        const filename =
+          uriParts[uriParts.length - 1] || `photo_${Date.now()}.jpg`;
+
+        // Get file extension
+        const fileExtension = filename.split(".").pop()?.toLowerCase() || "jpg";
+        const mimeType = `image/${
+          fileExtension === "jpg" ? "jpeg" : fileExtension
+        }`;
+
+        console.log("📸 Image details:", { filename, mimeType, imageUri });
+
+        // For React Native, we need to format the file object correctly
+        // @ts-ignore - React Native FormData accepts this format
+        formData.append("file", {
+          uri: imageUri,
+          type: mimeType,
+          name: filename,
+        });
+
+        console.log("📦 Method 1: FormData prepared, sending to server...");
+
+        // Upload to backend
+        const response = await apiClient.request(
+          `${API_CONFIG.ENDPOINTS.PRODUCTS}/upload-image`,
+          {
+            method: "POST",
+            body: formData,
+            requireAuth: true,
+          }
+        );
+
+        console.log("📬 Upload response:", response);
+
+        if (response.success && response.data?.url) {
+          console.log("✅ Image uploaded successfully:", response.data.url);
+          return response.data.url;
+        }
+
+        console.warn(
+          "⚠️ Method 1 (FormData) failed, trying Method 2 (FileSystem)..."
+        );
+      } catch (formDataError) {
+        console.warn("⚠️ Method 1 error:", formDataError);
+      }
+
+      // Method 2: Fallback to expo-file-system
+      console.log("📦 Method 2: Using expo-file-system...");
+      const url = await ImageUploadService.uploadImageWithFileSystem(imageUri);
+
+      if (url) {
+        console.log("✅ Image uploaded via FileSystem:", url);
+        return url;
+      }
+
+      console.error("❌ Both upload methods failed");
+      return null;
+    } catch (error) {
+      console.error("❌ Error uploading image:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Upload multiple images
+   */
+  static async uploadImages(imageUris: string[]): Promise<string[]> {
+    try {
+      console.log(`📤 Uploading ${imageUris.length} images...`);
+
+      const uploadPromises = imageUris.map((uri) => this.uploadImage(uri));
+      const results = await Promise.all(uploadPromises);
+
+      // Filter out null values (failed uploads)
+      const successfulUploads = results.filter(
+        (url) => url !== null
+      ) as string[];
+
+      console.log(
+        `✅ ${successfulUploads.length}/${imageUris.length} images uploaded successfully`
+      );
+
+      return successfulUploads;
+    } catch (error) {
+      console.error("❌ Error uploading multiple images:", error);
+      return [];
+    }
+  }
+
+  /**
    * Save product (Create or Update)
    */
   static async saveProduct(product: ProductFormData | Product): Promise<void> {
@@ -107,21 +211,48 @@ export class ProductService {
         : API_CONFIG.ENDPOINTS.PRODUCTS;
       const method = isUpdate ? "PUT" : "POST";
 
-      // Transform frontend data to backend format
-      // Handle photos
+      // ✅ STEP 1: Upload images first if they are local URIs
       let gambarUtama = null;
       let gambarLainnya = null;
 
-      // Check if 'foto' exists (from Product interface) or 'gambar' (from form data if different)
-      // The ProductFormData interface has 'foto: string[]'
       const photos = (product as any).foto || [];
+
       if (photos.length > 0) {
-        gambarUtama = photos[0];
-        if (photos.length > 1) {
-          gambarLainnya = JSON.stringify(photos.slice(1));
+        console.log("📤 Starting image upload process...");
+
+        // Check if photos are local URIs (need upload) or already URLs
+        const needsUpload = photos.some(
+          (uri: string) =>
+            uri.startsWith("file://") || uri.startsWith("content://")
+        );
+
+        let uploadedUrls: string[] = [];
+
+        if (needsUpload) {
+          // Upload local images to server
+          uploadedUrls = await this.uploadImages(photos);
+
+          if (uploadedUrls.length === 0) {
+            throw new Error("Gagal mengupload foto produk");
+          }
+        } else {
+          // Already URLs, use directly
+          uploadedUrls = photos;
         }
+
+        // Set gambar utama and lainnya from uploaded URLs
+        gambarUtama = uploadedUrls[0];
+        if (uploadedUrls.length > 1) {
+          gambarLainnya = JSON.stringify(uploadedUrls.slice(1));
+        }
+
+        console.log("✅ Images processed:", {
+          gambarUtama,
+          totalImages: uploadedUrls.length,
+        });
       }
 
+      // ✅ STEP 2: Save product with image URLs
       const payload = {
         namaProduk: product.nama,
         deskripsi: product.deskripsi,
@@ -134,6 +265,8 @@ export class ProductService {
         status: (product as any).isAktif ? "aktif" : "nonaktif",
       };
 
+      console.log("📤 Saving product with payload:", payload);
+
       const response = await apiClient.request(endpoint, {
         method,
         body: payload,
@@ -143,8 +276,10 @@ export class ProductService {
       if (!response.success) {
         throw new Error(response.message || "Gagal menyimpan produk");
       }
+
+      console.log("✅ Product saved successfully");
     } catch (error) {
-      console.error("Error saving product:", error);
+      console.error("❌ Error saving product:", error);
       throw error;
     }
   }
@@ -223,8 +358,25 @@ export class ProductService {
 
   // Helper to transform backend data to frontend model
   private static transformProduct(data: any): Product {
+    console.log("🔄 Transforming product data:", {
+      id: data.id,
+      nama: data.namaProduk,
+      gambarUtama: data.gambarUtama,
+      gambarLainnya: data.gambarLainnya,
+    });
+
     const photos: string[] = [];
-    if (data.gambarUtama) photos.push(data.gambarUtama);
+
+    // Add main image
+    if (data.gambarUtama) {
+      const validUrl = data.gambarUtama.trim();
+      if (validUrl) {
+        photos.push(validUrl);
+        console.log("✅ Main image added:", validUrl);
+      }
+    }
+
+    // Add other images
     if (data.gambarLainnya) {
       try {
         const otherPhotos =
@@ -233,21 +385,33 @@ export class ProductService {
             : data.gambarLainnya;
 
         if (Array.isArray(otherPhotos)) {
-          photos.push(...otherPhotos);
+          otherPhotos.forEach((photo: string) => {
+            const validUrl = photo.trim();
+            if (validUrl) {
+              photos.push(validUrl);
+            }
+          });
+          console.log("✅ Other images added:", otherPhotos.length);
         }
       } catch (e) {
-        console.warn("Error parsing product photos:", e);
+        console.warn("⚠️ Error parsing product photos:", e);
       }
     }
 
-    return {
+    console.log(
+      "📸 Total photos for product ${data.id}:",
+      photos.length,
+      photos
+    );
+
+    const transformedProduct = {
       id: String(data.id || ""),
       nama: data.namaProduk || "Tanpa Nama",
       deskripsi: data.deskripsi || "",
       harga: Number(data.harga) || 0,
       stok: Number(data.stok) || 0,
       kategori: data.kategori || "Lainnya",
-      foto: photos.length > 0 ? photos : ["https://via.placeholder.com/300"],
+      foto: photos.length > 0 ? photos : [],
       satuan: data.satuan || "pcs",
       umkmId: String(data.userId || ""),
       umkmNama: data.umkmNama || "UMKM",
@@ -258,6 +422,15 @@ export class ProductService {
       tanggalDibuat: data.createdAt ? new Date(data.createdAt) : new Date(),
       tanggalDiperbarui: data.updatedAt ? new Date(data.updatedAt) : new Date(),
     };
+
+    console.log("✨ Product transformed:", {
+      id: transformedProduct.id,
+      nama: transformedProduct.nama,
+      fotoCount: transformedProduct.foto.length,
+      firstFoto: transformedProduct.foto[0],
+    });
+
+    return transformedProduct;
   }
 
   static formDataToProduct(

@@ -1,6 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ProductStorageService } from "../services";
 import { Product } from "../types";
 
@@ -23,6 +29,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   showUMKMName = false,
   umkmName,
 }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("id-ID", {
       year: "numeric",
@@ -55,15 +63,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <View className="flex-row">
         {/* Product Image */}
         <View className="mr-4">
-          {product.foto && product.foto.length > 0 ? (
-            <Image
-              source={{ uri: product.foto[0] }}
-              className="w-20 h-20 rounded-lg"
-              resizeMode="cover"
-            />
+          {product.foto && product.foto.length > 0 && !imageError ? (
+            <View className="w-20 h-20 rounded-lg bg-gray-100">
+              {imageLoading && (
+                <View className="absolute inset-0 items-center justify-center z-10">
+                  <ActivityIndicator size="small" color="#3B82F6" />
+                </View>
+              )}
+              <Image
+                source={{ uri: product.foto[0] }}
+                className="w-20 h-20 rounded-lg"
+                resizeMode="cover"
+                onLoadStart={() => {
+                  console.log("🖼️ Loading image:", product.foto[0]);
+                  setImageLoading(true);
+                }}
+                onLoad={() => {
+                  console.log("✅ Image loaded successfully:", product.foto[0]);
+                  setImageLoading(false);
+                  setImageError(false);
+                }}
+                onError={(e) => {
+                  console.error(
+                    "❌ Image load error:",
+                    product.foto[0],
+                    e.nativeEvent
+                  );
+                  setImageLoading(false);
+                  setImageError(true);
+                }}
+              />
+            </View>
           ) : (
             <View className="w-20 h-20 bg-gray-200 rounded-lg items-center justify-center">
               <Ionicons name="image-outline" size={32} color="#9CA3AF" />
+              {imageError && (
+                <Text className="text-xs text-red-500 absolute bottom-1">
+                  Gagal
+                </Text>
+              )}
             </View>
           )}
         </View>

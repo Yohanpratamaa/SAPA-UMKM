@@ -5,6 +5,8 @@ export { AuthService } from "./AuthServiceAPI";
 export { ProductService as ProductStorageService } from "./ProductServiceAPI";
 export { ProfileService as ProfileStorageService } from "./ProfileServiceAPI";
 export { TrainingService as TrainingStorageService } from "./TrainingServiceAPI";
+// Image upload service with fallback support
+export { ImageUploadService } from "./ImageUploadService";
 
 // API Client for Backend Connection
 export { API_CONFIG, apiClient } from "./api";
