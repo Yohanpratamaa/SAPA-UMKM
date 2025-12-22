@@ -8,68 +8,49 @@ import {
   View,
 } from "react-native";
 import { RegisterForm } from "../../components/auth";
-import { AuthService } from "../../services";
+import { useAuth } from "../../contexts";
 import { RegisterFormData } from "../../types";
 
 export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
 
   const handleRegister = async (formData: RegisterFormData) => {
-    console.log("RegisterScreen: handleRegister called with:", formData);
+    console.log("📝 RegisterScreen: Starting registration process");
     setLoading(true);
     try {
-      console.log("RegisterScreen: Calling AuthService.register");
-      const response = await AuthService.register(formData);
-      console.log("RegisterScreen: AuthService response:", response);
+      // Use register from AuthContext to ensure state is synchronized
+      const success = await register(formData);
+      console.log("📝 RegisterScreen: AuthContext.register result:", success);
 
-      if (response.success && response.user && response.token) {
-        console.log(
-          "RegisterScreen: Registration successful. Redirecting to login."
-        );
-
-        // Karena user diminta untuk login manual setelah register,
-        // kita hapus sesi yang otomatis tersimpan oleh AuthService.register
-        try {
-          await AuthService.logout();
-        } catch (e) {
-          console.warn("RegisterScreen: Logout error (ignored):", e);
-        }
+      if (success) {
+        console.log("✅ RegisterScreen: Registration successful");
 
         Alert.alert(
           "Registrasi Berhasil",
-          "Akun Anda berhasil dibuat. Silakan login untuk melanjutkan.",
+          "Akun Anda berhasil dibuat. Anda akan diarahkan ke halaman utama.",
           [
             {
-              text: "Login Sekarang",
+              text: "OK",
               onPress: () => {
-                console.log("RegisterScreen: Navigating to login");
-                // Navigate ke halaman login
-                if (router.canGoBack()) {
-                  router.back();
-                } else {
-                  router.replace("/auth/login");
-                }
+                console.log("📝 RegisterScreen: Navigating to home");
+                // Give a small delay to ensure state is fully updated
+                setTimeout(() => {
+                  router.replace("/(tabs)/home");
+                }, 100);
               },
             },
           ]
         );
       } else {
-        // Tampilkan error
-        console.log("RegisterScreen: Registration failed:", response.message);
-        let errorMessage =
-          response.message || "Terjadi kesalahan saat mendaftar";
-
-        if (response.errors) {
-          const errorValues = Object.values(response.errors);
-          if (errorValues.length > 0) {
-            errorMessage = errorValues[0];
-          }
-        }
-
-        Alert.alert("Pendaftaran Gagal", errorMessage);
+        console.log("❌ RegisterScreen: Registration failed");
+        Alert.alert(
+          "Pendaftaran Gagal",
+          "Terjadi kesalahan saat mendaftar. Silakan coba lagi."
+        );
       }
     } catch (error) {
-      console.error("RegisterScreen: Register error:", error);
+      console.error("❌ RegisterScreen: Register error:", error);
       Alert.alert("Error", "Terjadi kesalahan yang tidak terduga");
     } finally {
       setLoading(false);
